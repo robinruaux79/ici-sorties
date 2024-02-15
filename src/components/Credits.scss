@@ -1,0 +1,12 @@
+
+.logos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  svg {
+    max-width: 250px;
+    height: auto;
+  }
+}
