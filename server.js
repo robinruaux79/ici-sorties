@@ -48,7 +48,7 @@ if(cluster.isMaster && isProduction){
 }else {
 
     // Connection URL
-    const dbUrl = 'mongodb://127.0.0.1:27017';
+    const dbUrl = process.env.MONGODB_URL || 'mongodb://127.0.0.1:27017';
     const client = new MongoClient(dbUrl);
 
     // Database Name
