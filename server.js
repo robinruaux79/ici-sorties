@@ -106,14 +106,24 @@ if(cluster.isMaster && isProduction){
         var MAX_TIMESTAMP = 8640000000000000;
         eventsCollection.aggregate([
             { "$match": match},
-            { "$addFields": {
-                "sta": { "$ifNull" : [ "$startsAt", MAX_TIMESTAMP]}
-            }},
-            { $sort: {"sta": 1, "createdAt":-1}} ]).skip(p * eventsPerPage).limit(eventsPerPage).toArray().then((events) => {
-            res.json(events);
+            { $sort: {"startsAt": 1, "createdAt":-1}} ]).skip(p * eventsPerPage).limit(eventsPerPage).toArray().then((events) => {
+            res.json(events.map(e => {
+                updateEventSummary(e, req.session.user || req.ip);
+                return e;
+            }));
         });
     });
 
+    app.post('/api/event/:id/report', async (req, res) => {
+        eventsCollection.findOneAndUpdate({"hash": {"$eq": req.params.id}}, {
+            "$push": {reports: req.session.user || req.ip}
+        }, { returnDocument: 'after' }).then(event => {
+            updateEventSummary(event, req.session.user || req.ip);
+            res.json({success: true, event});
+        }).catch(e => {
+            res.status(404).json({success: false});
+        });
+    });
     app.post('/api/event', (req, res) => {
         var bodyStr = '';
         req.on("data", function (chunk) {
@@ -151,6 +161,8 @@ if(cluster.isMaster && isProduction){
             const canCreate = (req.session.events || 0) < max || req.session.ts < dnow - 86400000;
             if (canCreate &&
                 !tagError &&
+                typeof(event.startsAt) === 'number' &&
+                typeof(event.endsAt) === 'number' &&
                 typeof(event.title) === 'string' && event.title?.length > 3 &&
                 typeof(event.desc) === 'string' && event.desc.length <= 512 &&
                 typeof(event.loc) === 'object' && typeof(event.loc.lat) === 'number' && typeof(event.loc.lng) === 'number' ) {
@@ -159,6 +171,7 @@ if(cluster.isMaster && isProduction){
                 req.session.events = req.session.events ? req.session.events + 1 : 1;
                 req.session.ts = new Date().getTime();
                 req.session.save();
+                updateEventSummary(event, req.session.user || req.ip);
                 res.json({success: true, event: event})
             } else {
                 res.json({success: false})
@@ -186,9 +199,15 @@ if(cluster.isMaster && isProduction){
     })
 }
 
+const updateEventSummary = (event, user) => {
+    event.hasReported = event.reports?.includes(user);
+    event.reports = undefined;
+    event._id = undefined;
+}
 process.on('uncaughtException', function (exception) {
 
     fs.appendFile('bugs.txt', JSON.stringify({ code: exception.code, message: exception.message, stack: exception.stack }), function (err) {
         if (err) throw err;
+        console.error(err);
     });
 });

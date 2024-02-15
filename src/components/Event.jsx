@@ -5,15 +5,63 @@ import {useState} from "react";
 import Button from "./Button.jsx";
 import {Map} from "./Map.jsx";
 import {useNavigate} from "react-router-dom";
+import {getCookie} from "../cookies.js";
+import { getUrlBase } from "../url.js";
 
+import {
+    EmailShareButton,
+    FacebookShareButton,
+    GabShareButton,
+    HatenaShareButton,
+    InstapaperShareButton,
+    LineShareButton,
+    LinkedinShareButton,
+    LivejournalShareButton,
+    MailruShareButton,
+    OKShareButton,
+    PinterestShareButton,
+    PocketShareButton,
+    RedditShareButton,
+    TelegramShareButton,
+    TumblrShareButton,
+    TwitterShareButton,
+    ViberShareButton,
+    VKShareButton,
+    WhatsappShareButton,
+    WorkplaceShareButton,
+    EmailIcon,
+    FacebookIcon,
+    GabIcon,
+    HatenaIcon,
+    LineIcon,
+    LinkedinIcon,
+    LivejournalIcon,
+    MailruIcon,
+    OKIcon,
+    PinterestIcon,
+    PocketIcon,
+    RedditIcon,
+    TelegramIcon,
+    TumblrIcon,
+    TwitterIcon,
+    ViberIcon,
+    VKIcon,
+    WeiboIcon,
+    WhatsappIcon,
+    XIcon,
+} from "react-share";
+
+import {BiLink, BiShare} from "react-icons/bi";
 function Event({data, children, full, onShowInfo, ...rest}) {
+
+    const {i18n, t} = useTranslation();
+    const [showSocialNetworks, setSocialNetworkVisible] = useState(false);
 
     const startsAt = new Date();
     startsAt.setTime(data.startsAt);
     const endsAt = new Date();
     endsAt.setTime(data.endsAt);
 
-    const {i18n} = useTranslation();
     const lang = i18n.resolvedLanguage || i18n.language;
     const availableStart =
         data.startsAt > 0 && <Trans i18nKey={'startsAt'} values={{startsAt: startsAt.toLocaleString(i18n.resolvedLanguage, {
@@ -33,6 +81,27 @@ function Event({data, children, full, onShowInfo, ...rest}) {
                 hour: "numeric",
                 minute: "numeric",
             })}} defaults={'{{endsAt}}'}></Trans>;
+
+    const [hasReported, setHasReported] = useState(data.hasReported);
+
+    const handleReportEvent = async () => {
+        fetch('/api/event/'+data.hash+'/report', {
+            method: 'POST',
+            body: '',
+            headers: {
+                'X-CSRF-Token': getCookie('_csrf_token'),
+            },
+        }).then(e => e.json()).then(json => {
+            if( json.success === false ){
+                console.error(json);
+            }else{
+                setHasReported(true);
+                console.log(json);
+            }
+        });
+    }
+
+    const url = getUrlBase() + '/event/'+data.slug;
 
     return (
         <div className={"bg-default event"} {...rest}>
@@ -54,6 +123,45 @@ function Event({data, children, full, onShowInfo, ...rest}) {
                                 '_blank' // <- This is what makes it open in a new window.
                             );
                         }}>Calcul d'itinéraire</Button>
+                       <div className="share-view" onClick={() => setSocialNetworkVisible(!showSocialNetworks)} onMouseOver={() => setSocialNetworkVisible(true)}
+                             onMouseOut={() => setSocialNetworkVisible(false)}>
+                            <Button title={t('share_on_social_networks', 'Partager sur les réseaux')}
+                                    className={"btn btn-link"}><BiShare /></Button>
+                        {showSocialNetworks && (
+                            <div className="social-networks">
+                                <EmailShareButton url={url} subject={data.label} body={data.desc}>
+                                    <EmailIcon />
+                                </EmailShareButton>
+                                <FacebookShareButton url={url}>
+                                    <FacebookIcon />
+                                </FacebookShareButton>
+                                <RedditShareButton title={data.label} url={url}>
+                                    <RedditIcon />
+                                </RedditShareButton>
+                                <TumblrShareButton url={url} title={data.label} caption={data.desc}>
+                                    <TumblrIcon />
+                                </TumblrShareButton>
+                                <TelegramShareButton title={data.label + " " + data.desc} url={url}>
+                                    <TelegramIcon />
+                                </TelegramShareButton>
+                                <TwitterShareButton title={data.label + " " + data.desc} url={url}>
+                                    <XIcon />
+                                </TwitterShareButton>
+                                <ViberShareButton title={data.label + " " + data.desc} url={url}>
+                                    <ViberIcon />
+                                </ViberShareButton>
+                                <VKShareButton title={data.label + " " + data.desc} url={url}>
+                                    <VKIcon />
+                                </VKShareButton>
+                                <WhatsappShareButton title={data.label + " " + data.desc} url={url}>
+                                    <WhatsappIcon />
+                                </WhatsappShareButton>
+                            </div>
+                        )}
+                        </div>
+                        {!hasReported && <Button className={"btn"} onClick={() => {
+                            handleReportEvent()
+                        }}>Signaler</Button>}
                     </div>
                     {children}
                 </div>

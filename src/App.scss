@@ -114,23 +114,7 @@ input[type=checkbox]{
   margin-right: 8px;
 }
 
-.poll {
-  box-sizing: border-box;
-  max-width: 640px;
-  margin: 0 auto;
-  width: 100%;
-    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
-    padding: 8px 16px 16px 16px;
-    border-radius: 8px;
-  position: relative;
-  & .note {
-    font-size: 60%;
-    color: gray;
-    padding-left: 4px;
-  }
-  .poll-name {
-    margin: 0 0 12px;
-  }
+.event {
   .share-view {
     position: relative;
   }
@@ -159,49 +143,6 @@ input[type=checkbox]{
       }
     }
   }
-
-  .head {
-    display: flex;
-    gap: 8px;
-  }
-  .btns {
-    bottom: 11px;
-    right: 16px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin: 8px 0;
-    gap: 8px;
-  }
-  .body {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 8px 0 0 0;
-    flex-wrap: wrap;
-    align-items: center;
-    p {
-      margin: 0;
-      img {
-        max-width: 100%;
-        height: auto;
-      }
-    }
-    margin-bottom: 8px;
-  }
-  .poll-name{
-    text-overflow: ellipsis;
-    overflow: hidden;
-    flex: 20;
-    margin: 0;
-    align-self: center;
-    background-color: #f2f2f2;
-    font-size: 120%;
-    border-radius: 8px;
-    border: 1px solid transparent;
-    line-height: 35px;
-    padding: 8px 0 0 0;
-  }
   .actions {
     display: flex;
     flex-direction: row;
@@ -210,15 +151,6 @@ input[type=checkbox]{
     flex-wrap: wrap;
     gap: 8px;
     margin: 0;
-  }
-  .votants {
-    border: 1px solid #a2a2a2;
-    padding: 3px 10px;
-    border-radius: 5px;
-    /*
-    color: white;
-    background-color: #f26673;
-    */
   }
 }
 
