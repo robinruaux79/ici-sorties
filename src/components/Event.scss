@@ -4,7 +4,7 @@
     cursor: pointer;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
+    padding: 4px;
     flex-direction: column;
     @media only screen and (min-width: 480px) {
       flex-direction: row;

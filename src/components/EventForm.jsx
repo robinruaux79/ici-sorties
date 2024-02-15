@@ -161,6 +161,7 @@ function EventForm({children, disabled, className, ...rest}) {
 
     return <div className="bg-default content event-form">
         <h2>Ajouter un événement</h2>
+        <p><i>Tous les champs sont obligatoires.</i></p>
         <div className="field">
             <label htmlFor="event-title">Titre :</label>
             <input id={"event-title"} type="text" name="title" onChange={e => setTitle(e.target.value)} value={title} />
