@@ -6,7 +6,7 @@ const CGU = () => {
     const { i18n } = useTranslation();
     const lang = i18n.resolvedLanguage || i18n.language;
 
-    return <div className="content cgu">
+    return <div className="bg-default content cgu">
 
         <h2><Trans i18nKey='links.cgu'>Conditions générales d'utilisation</Trans></h2>
 

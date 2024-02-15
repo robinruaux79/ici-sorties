@@ -53,7 +53,7 @@ function App() {
         <div className="foreground">
             <header id={"header"}>
                 <h1 className={`${bg ? ' bg-default' : ''}`}>ici !<sup>®</sup></h1>
-                <p className="bg-default slogan">Des sorties et événements à proximité !</p>
+                <p className="bg-default slogan">Des sorties et des événements à proximité !</p>
                 <nav role={"navigation"}>
                     <ul className="menu menu-main">
                         <li><NavLink to={"/events/nearby"} className="btn">Près d&apos;ici</NavLink></li>
@@ -63,17 +63,16 @@ function App() {
             </header>
 
             <main>
-                <div className={"bg-default content"}>
-                    <Routes>
-                        <Route path="/" element={<Outlet />}>
-                            <Route path="events/nearby" element={<Events />} />
-                            <Route path="event/new" element={<EventForm />} />
-                            <Route path="legals" element={<Legals />} />
-                            <Route path="cgu" element={<CGU />} />
-                            <Route path="credits" element={<Credits />} />
-                        </Route>
-                    </Routes>
-                </div>
+
+                <Routes>
+                    <Route path="/" element={<Outlet />}>
+                        <Route path="events/nearby" element={<Events />} />
+                        <Route path="event/new" element={<EventForm />} />
+                        <Route path="legals" element={<Legals />} />
+                        <Route path="cgu" element={<CGU />} />
+                        <Route path="credits" element={<Credits />} />
+                    </Route>
+                </Routes>
             </main>
 
             <footer className={"bg-default"}>

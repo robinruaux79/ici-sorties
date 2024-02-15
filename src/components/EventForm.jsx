@@ -118,7 +118,7 @@ function EventForm({children, disabled, className, ...rest}) {
         return currentDate.getTime() < selectedDate.getTime();
     };
 
-    return <div className="event-form">
+    return <div className="bg-default content event-form">
         <h2>Ajouter un événement</h2>
         <div className="field">
             <label htmlFor="event-title">Titre :</label>

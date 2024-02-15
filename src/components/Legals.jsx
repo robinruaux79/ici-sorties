@@ -4,7 +4,7 @@ import {Trans} from "react-i18next";
 const Legals = () => {
     const hosting = 'OVH';
     const editor = 'anonympins (@gmail.com)';
-    return <div className="content legals">
+    return <div className="bg-default content legals">
 
         <h2><Trans i18nKey='links.legals'>Mentions légales</Trans></h2>
 

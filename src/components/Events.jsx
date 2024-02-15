@@ -14,7 +14,7 @@ function Events({children, disabled, className, loc, ...rest}) {
     });
 
     return (
-        <div className="events">
+        <div className="bg-default content events">
             {isError && <>Aucun événement trouvé</>}
             {isFetching && <div className={"loc-spinner"}></div>}
             {events?.map(e => <Event data={e} />)}
