@@ -3,7 +3,7 @@ import "./Button.scss"
 import Button from "./Button.jsx";
 import { Map } from "./Map.jsx";
 import {useState} from "react";
-import {Trans} from "react-i18next";
+import {Trans, useTranslation} from "react-i18next";
 import DatePicker, {registerLocale} from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
@@ -25,6 +25,9 @@ import {
     EditorProvider,
     Toolbar, useEditorState
 } from 'react-simple-wysiwyg';
+import {getCookie} from "../cookies.js";
+import {useNavigate} from "react-router-dom";
+import "./EventForm.scss"
 
 const locales = {
     fr,
@@ -102,20 +105,58 @@ const BtnBetterLink = createButton('Link', '🔗', (args) => {
         const txt = getSelectionText();
         // eslint-disable-next-line no-alert
         const url = prompt('URL', '');
-        document.execCommand('insertHTML', false, '<a href="' + url + '" target="_blank">' + txt + '</a>');
+        if( url.match(/^https?:\/\\(.*)/) ) {
+            document.execCommand('insertHTML', false, '<a href="' + url + '" target="_blank">' + txt + '</a>');
+        }else{
+            alert('Invalid URL');
+        }
     }
 });
 
 function EventForm({children, disabled, className, ...rest}) {
+
+    const navigate = useNavigate();
+    const { i18n } = useTranslation();
     const [title, setTitle] = useState('');
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [eventDesc, setEventDesc] = useState('');
 
+    const initialPos = { lat : 48.853239, lng : 2.3460111 };
+    const [eventLoc, setEventLoc] = useState(initialPos);
+
+    const lang = i18n.resolvedLanguage || i18n.language;
+
     const filterPassedTime = (time) => {
         const currentDate = new Date();
         const selectedDate = new Date(time);
         return currentDate.getTime() < selectedDate.getTime();
+    };
+
+    const handleAddEvent = () => {
+        const event = {
+            title: title,
+            desc: eventDesc,
+            startsAt: (startDate || undefined) && new Date(startDate).getTime(),
+            endsAt: (endDate || undefined) && new Date(endDate).getTime(),
+            loc: eventLoc,
+            lang
+        }
+        if( title.length < 3 ){
+            //setErrors(errs => [...errs, {field: 'title', err:'Title length too short');
+        }
+        fetch('/api/event', {method: 'POST', body: JSON.stringify(event), headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': getCookie('_csrf_token'),
+        }}).then(e => e.json()).then(json => {
+            if( json.success === false ){
+                console.error("Impossible de créer l'événement");
+            }else{
+                console.log("Evenement créé !");
+                console.log(json);
+                navigate('/events/nearby');
+            }
+        });
     };
 
     return <div className="bg-default content event-form">
@@ -136,7 +177,7 @@ function EventForm({children, disabled, className, ...rest}) {
                     <BtnUnderline />,
                     <BtnStrikeThrough />,
                     <BtnBulletList />,
-                    <BtnNumberedList />,
+                    <BtnNumberedList />,i
                     <BtnBetterLink />,
                     <BtnStyles />,
                     <BtnClearFormatting />,
@@ -180,9 +221,11 @@ function EventForm({children, disabled, className, ...rest}) {
         </div>
         <div className={"field field-block"}>
             <label>Lieu :</label>
-            <Map position={[48.853239,2.3460111]} zoom={11} />
+            <Map draggable={true} position={initialPos} zoom={11} onPositionChanged={(pos) => {
+                setEventLoc(pos);
+            }} />
         </div>
-        <Button type={"submit"}>Ajouter</Button>
+        <Button type={"submit"} onClick={handleAddEvent}>Ajouter</Button>
     </div>
 }
 

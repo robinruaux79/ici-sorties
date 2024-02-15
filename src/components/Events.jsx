@@ -4,21 +4,26 @@ import {useQuery} from "react-query";
 import Event from "./Event.jsx";
 
 import "./Spinner.scss"
+import {useRef, useState} from "react";
+import {InfiniteScroll} from "./InfiniteScroll.jsx";
+import {eventsPerPage} from "../constants.js";
 
 function Events({children, disabled, className, loc, ...rest}) {
 
-    const { data: events, isFetching, isFetched, isError } = useQuery('eventSource', () => {
-        return fetch('/api/events/nearby'+(loc?'&lat='+loc.lat+'&lng'+loc.lng: ''), {
+    const [currentEvent, setCurrentEvent] = useState('');
 
-        }).then(e => e.json());
-    });
+    const queryFnInfinite = (page) => fetch('/api/events/nearby?page='+page+(loc?'&lat='+loc.lat+'&lng'+loc.lng: ''), {
+
+    }).then(e => e.json())
+
+    const infiniteScrollRef = useRef(null)
 
     return (
-        <div className="bg-default content events">
-            {isError && <>Aucun événement trouvé</>}
-            {isFetching && <div className={"loc-spinner"}></div>}
-            {events?.map(e => <Event data={e} />)}
-        </div>
+        <InfiniteScroll className={"content events"} spinner={<div className={"loc-spinner"}></div>} count={eventsPerPage} refreshTime={0} ref={infiniteScrollRef} fetch={queryFnInfinite} renderItem={(e) => {
+            return <Event data={e} full={e.hash === currentEvent} onShowInfo={(event) => {
+                setCurrentEvent(event.hash);
+            }} />
+        }} />
     )
 }
 

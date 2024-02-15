@@ -5,6 +5,7 @@ import csrf from "csurf";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser"
 import expressSession from "express-session"
+import csrfDSC from 'express-csrf-double-submit-cookie'
 import cluster from "node:cluster";
 import process from "node:process";
 import os from "node:os";
@@ -13,6 +14,10 @@ import {fileURLToPath} from 'url';
 import MongoStore from 'connect-mongo';
 import { readFile } from 'fs/promises';
 import * as path from "path";
+import {rand} from "./src/random.js";
+import slug from "slug";
+import sha256 from "sha256";
+import {eventsPerPage} from "./src/constants.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,7 +52,7 @@ if(cluster.isMaster && isProduction){
     const client = new MongoClient(dbUrl);
 
     // Database Name
-    const dbName = 'articho';
+    const dbName = 'ici';
 
     console.log('Connected successfully to server');
     const db = client.db(dbName);
@@ -55,14 +60,6 @@ if(cluster.isMaster && isProduction){
 
     // Use connect method to connect to the server
     await client.connect();
-
-    // Cached production assets
-    const templateHtml = isProduction
-        ? await fs.readFile('./dist/client/index.html', 'utf-8')
-        : ''
-    const ssrManifest = isProduction
-        ? await fs.readFile('./dist/client/.vite/ssr-manifest.json', 'utf-8')
-        : undefined
 
     // Create http server
     const app = express()
@@ -72,12 +69,10 @@ if(cluster.isMaster && isProduction){
         store: MongoStore.create({ mongoUrl: dbUrl })
     }));
 
-    const csrfProtection = csrf({
-        cookie: true
-    });
-    app.use(csrfProtection);
+    const csrfProtection = csrfDSC();
+    app.use(csrfProtection)
+    app.disable('etag');
 
-    console.log("ok");
     // Add Vite or respective production middlewares
     let vite
     if (!isProduction) {
@@ -94,40 +89,83 @@ if(cluster.isMaster && isProduction){
         app.use(compression())
         app.use(base, sirv('./dist/client', {extensions: []}))
     }
+    app.get('/api/events/nearby', (req, res) => {
+        const owner = req.query.owner;
+        const l = req.query.lng?.split("-");
+        const dnow = new Date().getTime();
+        console.log(req.query.page);
+        const p = (req.query.page || 1)-1;
+        const match = owner ? { "owner": { "$eq": owner } } : {
+            "lang": {"$eq": 'fr'},
+            "$or" : [{"endsAt": {"$gte":dnow}}, {"endsAt": {"$eq": null}}]
+//            "$or" : [{"startsAt": {"$lte":dnow}}, {"startsAt": {"$eq": null}}]
+/*            "$and": [
+                {,
+] */
+        };
+        var MAX_TIMESTAMP = 8640000000000000;
+        eventsCollection.aggregate([
+            { "$match": match},
+            { "$addFields": {
+                "sta": { "$ifNull" : [ "$startsAt", MAX_TIMESTAMP]}
+            }},
+            { $sort: {"sta": 1, "createdAt":-1}} ]).skip(p * eventsPerPage).limit(eventsPerPage).toArray().then((events) => {
+            res.json(events);
+        });
+    });
 
-    console.log(isProduction);
-
-    // Serve HTML
-    app.use('*', async (req, res, next) => {
-        next();
-        /*try {
-            const url = req.originalUrl.replace(base, '')
-
-            let template
-            let render
-            if (!isProduction) {
-                // Always read fresh template in development
-                template = await fs.readFile('./index.html', 'utf-8')
-                template = await vite.transformIndexHtml(url, template)
-                render = (await vite.ssrLoadModule('/src/entry-server.jsx')).render
+    app.post('/api/event', (req, res) => {
+        var bodyStr = '';
+        req.on("data", function (chunk) {
+            bodyStr += chunk.toString();
+        });
+        req.on("end", async function () {
+            const event = JSON.parse(bodyStr);
+            event.hash = sha256(event.title + event.description);
+            event.slug = slug(event.title);
+            event.owner = req.session.user;
+            event.createdAt = new Date().getTime();
+            if (typeof (event.lang) === 'string') {
+                const l = event.lang.split("-");
+                event.lang = l[0];
             } else {
-                template = templateHtml
-                render = (await import('./dist/server/entry-server.js')).render
+                event.lang = 'fr';
             }
+            await eventsCollection.findOne({'slug': {'$eq': event.slug}}).then(async duplicated => {
+                if (duplicated) {
+                    event.slug += rand(0, 9) + '';
+                }
+            })
+            var tagError = false;
+            event.desc.replace(/<([a-zA-Z][a-zA-Z0-9_-]*)\b[^>]*>(.*?)<\/\1>/g, function(m,m1,m2){
+                // write data to result objcect
+                if( !['p', 'div', 'h1', 'h2', 'code', 'pre', 'a', 'ul', 'ol', 'li', 'img', 'b', 'i', 'u', 'blockquote'].includes(m1)){
+                    tagError = true;
+                }
+                // replace with original = do nothing with string
+                return m;
+            });
+            const dnow = new Date().getTime();
+            const max = 10;
+            console.log(req.session.events + "events deja créés !", event);
+            const canCreate = (req.session.events || 0) < max || req.session.ts < dnow - 86400000;
+            if (canCreate &&
+                !tagError &&
+                typeof(event.title) === 'string' && event.title?.length > 3 &&
+                typeof(event.desc) === 'string' && event.desc.length <= 512 &&
+                typeof(event.loc) === 'object' && typeof(event.loc.lat) === 'number' && typeof(event.loc.lng) === 'number' ) {
+                const element = await eventsCollection.insertOne(event);
+                event._id = element.insertedId;
+                req.session.events = req.session.events ? req.session.events + 1 : 1;
+                req.session.ts = new Date().getTime();
+                req.session.save();
+                res.json({success: true, event: event})
+            } else {
+                res.json({success: false})
+            }
+        });
 
-            const rendered = await render(url, ssrManifest)
-
-            const html = template
-                .replace(`<!--app-head-->`, rendered.head ?? '')
-                .replace(`<!--app-html-->`, rendered.html ?? '')
-
-            res.status(200).set({'Content-Type': 'text/html'}).end(html)
-        } catch (e) {
-            vite?.ssrFixStacktrace(e)
-            console.log(e.stack)
-            res.status(500).end(e.stack)
-        }*/
-    })
+    });
 
     app.get('*',  (req, res) => {
         console.log(path.join(__dirname, 'index.html'));
@@ -137,9 +175,7 @@ if(cluster.isMaster && isProduction){
             'utf-8', async (err, data) => {
                 if( err )
                     console.error(err);
-                else console.log("ok")
                 const template = await vite.transformIndexHtml(url, data)
-                console.log(template)
                 res.status(200).set({ 'Content-Type': 'text/html' }).end(template)
             });
     })

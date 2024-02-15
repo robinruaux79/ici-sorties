@@ -2,7 +2,7 @@ import {MapContainer, Marker, Popup, TileLayer, useMap, useMapEvent} from 'react
 import {useCallback, useEffect, useMemo, useRef, useState} from "react";
 
 
-function DraggableMarker({position, children, onDragEnd}) {
+function DraggableMarker({position, draggable, children, onDragEnd}) {
     const [_position, setPosition] = useState(position)
     useEffect(()=>{
         setPosition(position)
@@ -26,7 +26,7 @@ function DraggableMarker({position, children, onDragEnd}) {
 
     return (
         <Marker
-            draggable={true}
+            draggable={draggable}
             eventHandlers={eventHandlers}
             position={_position}
             ref={markerRef}>
@@ -35,7 +35,7 @@ function DraggableMarker({position, children, onDragEnd}) {
     )
 }
 
-export const Map = ({position, zoom}) => {
+export const Map = ({position, draggable, zoom, onPositionChanged}) => {
     const [center, setCenter] = useState(position);
     return <div className="map">
         <MapContainer center={center} zoom={zoom} scrollWheelZoom={true}>
@@ -43,9 +43,9 @@ export const Map = ({position, zoom}) => {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <DraggableMarker position={center} onDragEnd={(pos)=>{
+        <DraggableMarker draggable={draggable} position={[center.lat, center.lng]} onDragEnd={(pos)=>{
             setCenter(pos);
-            console.log("ok", pos);
+            onPositionChanged?.(pos);
         }}>
 
         </DraggableMarker>
