@@ -205,9 +205,10 @@ const updateEventSummary = (event, user) => {
     event._id = undefined;
 }
 process.on('uncaughtException', function (exception) {
-
+    console.error(exception);
     fs.appendFile('bugs.txt', JSON.stringify({ code: exception.code, message: exception.message, stack: exception.stack }), function (err) {
-        if (err) throw err;
-        console.error(err);
+        if (err){
+            throw err;
+        }
     });
 });
