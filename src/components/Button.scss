@@ -16,6 +16,11 @@
     text-decoration: none;
     color: black;
   }
+  &:active {
+    position: relative;
+    top: 1px;
+    left: 0px;
+  }
 }
 .btn:focus,
 .btn:focus-visible {
@@ -24,6 +29,7 @@
 
 .btn-disabled:hover {
   border-color: transparent;
+
 }
 .btn-disabled:focus,
 .btn-disabled:focus-visible {

@@ -210,6 +210,12 @@ input[type=checkbox]{
     justify-content: space-evenly;
     a {
       display: flex;
+
+      &:active {
+        position: relative;
+        top: 1px;
+        left: 0px;
+      }
     }
   }
 }
