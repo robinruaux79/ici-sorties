@@ -1,3 +1,4 @@
+import React from "react";
 import {QueryClient, QueryClientProvider} from 'react-query'
 import './App.scss'
 import {NavLink, Outlet, Route, Routes} from "react-router-dom";
@@ -17,7 +18,6 @@ import NewYear from "./icons/new-year-3004243.svg?react";
 
 import EventForm from "./components/EventForm.jsx";
 import Events from "./components/Events.jsx";
-
 
 function App() {
     const date = new Date();

@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import express from 'express'
 import {MongoClient} from 'mongodb'
 import csrf from "csurf";
+
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser"
 import expressSession from "express-session"
@@ -18,10 +19,10 @@ import {rand} from "./src/random.js";
 import slug from "slug";
 import sha256 from "sha256";
 import {eventsPerPage} from "./src/constants.js";
+import {createServer} from "vite";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 
 const readJSON = async (path) => {
     const json = JSON.parse(
@@ -73,6 +74,14 @@ if(cluster.isMaster && isProduction){
     app.use(csrfProtection)
     app.disable('etag');
 
+    const templateHtml = isProduction
+        ? fs.readFileSync('./dist/client/index.html', {encoding:'utf-8'})
+        : fs.readFileSync('./index.html', {encoding:'utf-8'})
+
+    const ssrManifest = isProduction
+        ? fs.readFileSync('./dist/client/.vite/ssr-manifest.json', {encoding:'utf-8'})
+        : undefined
+
     // Add Vite or respective production middlewares
     let vite
     if (!isProduction) {
@@ -89,6 +98,7 @@ if(cluster.isMaster && isProduction){
         app.use(compression())
         app.use(base, sirv('./dist/client', {extensions: []}))
     }
+
     app.get('/api/events/nearby', (req, res) => {
         const owner = req.query.owner;
         const l = req.query.lng?.split("-");
@@ -180,23 +190,30 @@ if(cluster.isMaster && isProduction){
 
     });
 
-    app.get('*',  (req, res) => {
-        console.log(path.join(__dirname, 'index.html'));
-        const url = req.originalUrl
-        // 1. Read index.html
-        fs.readFile(path.resolve(__dirname, 'index.html'),
-            'utf-8', async (err, data) => {
-                if( err )
-                    console.error(err);
-                const template = await vite.transformIndexHtml(url, data)
-                res.status(200).set({ 'Content-Type': 'text/html' }).end(template)
-            });
+    app.use('*', async (req, res) => {
+        const url = req.originalUrl.replace(base, '')
+        let template
+        let rendered
+        if( !isProduction ) {
+            template = await vite.transformIndexHtml(url, templateHtml)
+            const ssrRender = (await vite.ssrLoadModule('/src/entry-server.jsx')).render
+            rendered = await ssrRender(url, ssrManifest)
+        }else{
+            template = templateHtml
+            rendered = (await import('./dist/server/entry-server.js')).render
+        }
+        const html = template
+            .replace(`<!--app-head-->`, rendered.head ?? '')
+            .replace(`<!--app-html-->`, rendered.html ?? '')
+
+        res.status(200).set({ 'Content-Type': 'text/html' }).send(html)
     })
 
     // Start http server
     app.listen(port, () => {
         console.log(`Server started at http://localhost:${port}`)
     })
+
 }
 
 const updateEventSummary = (event, user) => {

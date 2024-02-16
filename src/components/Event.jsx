@@ -1,9 +1,9 @@
 
 import "./Event.scss"
 import {Trans, useTranslation} from "react-i18next";
-import {useState} from "react";
+import {lazy, Suspense, useState} from "react";
 import Button from "./Button.jsx";
-import {Map} from "./Map.jsx";
+//import {Map} from "./Map.jsx";
 import {useNavigate} from "react-router-dom";
 import {getCookie} from "../cookies.js";
 import { getUrlBase } from "../url.js";
@@ -52,7 +52,10 @@ import {
 } from "react-share";
 
 import {BiLink, BiShare} from "react-icons/bi";
+import {FaMagnifyingGlass} from "react-icons/fa6";
 function Event({data, children, full, onShowInfo, ...rest}) {
+
+    const Map = lazy(() => import('./Map.jsx'));
 
     const {i18n, t} = useTranslation();
     const [showSocialNetworks, setSocialNetworkVisible] = useState(false);
@@ -108,14 +111,16 @@ function Event({data, children, full, onShowInfo, ...rest}) {
             <div className={"head"} onClick={() => onShowInfo(data)}>
                 <h3>{data.title}</h3>
                 <div className="start">{availableStart}</div>
-                {!full && (<Button className={"btn"}>+</Button>)}
+                {!full && (<Button><FaMagnifyingGlass /></Button>)}
             </div>
             {full && (
                 <div className={"body"}>
                     <div className="desc" dangerouslySetInnerHTML={{ __html: data.desc }}></div>
                     {availableStart && <div className="start">Débute le {availableStart}</div>}
                     {availableEnd && <div className="end">Se termine le {availableEnd}</div>}
-                    <Map position={data.loc} zoom={11} draggable={false} />
+                    {<Suspense fallback={<>No map found</>}>
+                        <Map position={data.loc} zoom={11} draggable={false}/>
+                    </Suspense>}
                     <div className="actions">
                         <Button className={"btn"} onClick={() => {
                             window.open(

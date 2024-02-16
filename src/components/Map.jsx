@@ -1,14 +1,24 @@
-import {MapContainer, Marker, Popup, TileLayer, useMap, useMapEvent} from 'react-leaflet'
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {lazy, Suspense, useCallback, useContext, useEffect, useMemo, useRef, useState} from "react";
+import L from 'leaflet';
+import {MapContainer, Marker, TileLayer, useMap} from "react-leaflet";
 
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
-function DraggableMarker({position, draggable, children, onDragEnd}) {
+let DefaultIcon = L.icon({
+    iconUrl: icon,
+    shadowUrl: iconShadow
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
+
+function DraggableMarker({position, map, draggable, children, onDragEnd}) {
     const [_position, setPosition] = useState(position)
     useEffect(()=>{
         setPosition(position)
     }, [position])
     const markerRef = useRef(null)
-    const map = useMap()
+
     const eventHandlers = useMemo(
         () => ({
             dragend() {
@@ -16,7 +26,7 @@ function DraggableMarker({position, draggable, children, onDragEnd}) {
                 if (marker != null) {
                     const pos = marker.getLatLng();
                     setPosition(pos)
-                    map.setView(pos, map.getZoom())
+                    map.current.setView(pos, map.current.getZoom())
                     onDragEnd?.(pos);
                 }
             },
@@ -35,21 +45,26 @@ function DraggableMarker({position, draggable, children, onDragEnd}) {
     )
 }
 
-export const Map = ({position, draggable, zoom, onPositionChanged}) => {
+const Map = ({position, draggable, zoom, onPositionChanged}) => {
     const [center, setCenter] = useState(position);
-    return <div className="map">
-        <MapContainer center={center} zoom={zoom} scrollWheelZoom={true}>
-        <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <DraggableMarker draggable={draggable} position={[center.lat, center.lng]} onDragEnd={(pos)=>{
-            setCenter(pos);
-            onPositionChanged?.(pos);
-        }}>
+    const currentMap = useRef(null);
 
-        </DraggableMarker>
-    </MapContainer></div>;
+    return <div className="map">
+        <Suspense>
+            <MapContainer ref={currentMap} center={center} zoom={zoom} scrollWheelZoom={true}>
+                <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <DraggableMarker map={currentMap} draggable={draggable} position={[center.lat, center.lng]} onDragEnd={(pos)=>{
+                    setCenter(pos);
+                    onPositionChanged?.(pos);
+                }}>
+
+                </DraggableMarker>
+            </MapContainer>
+        </Suspense></div>
 
 };
 
+export default Map;

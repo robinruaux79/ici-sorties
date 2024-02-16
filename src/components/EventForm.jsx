@@ -1,8 +1,8 @@
 
 import "./Button.scss"
 import Button from "./Button.jsx";
-import { Map } from "./Map.jsx";
-import {useState} from "react";
+//import { Map } from "./Map.jsx";
+import {lazy, Suspense, useState} from "react";
 import {Trans, useTranslation} from "react-i18next";
 import DatePicker, {registerLocale} from "react-datepicker";
 
@@ -122,6 +122,8 @@ function EventForm({children, disabled, className, ...rest}) {
     const [endDate, setEndDate] = useState(null);
     const [eventDesc, setEventDesc] = useState('');
 
+    const Map = lazy(() => import('./Map.jsx'));
+
     const initialPos = { lat : 48.853239, lng : 2.3460111 };
     const [eventLoc, setEventLoc] = useState(initialPos);
 
@@ -222,9 +224,9 @@ function EventForm({children, disabled, className, ...rest}) {
         </div>
         <div className={"field field-block"}>
             <label>Lieu :</label>
-            <Map draggable={true} position={initialPos} zoom={11} onPositionChanged={(pos) => {
+            {<Suspense fallback={<></>}><Map draggable={true} position={initialPos} zoom={11} onPositionChanged={(pos) => {
                 setEventLoc(pos);
-            }} />
+            }} /></Suspense>}
         </div>
         <Button type={"submit"} onClick={handleAddEvent}>Ajouter</Button>
     </div>
