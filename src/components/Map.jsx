@@ -17,6 +17,8 @@ const Map = ({position, draggable, zoom, onPositionChanged}) => {
     const mapContainerRef = useRef(null);
 
     let map, marker;
+    scrollWheelZoom: false
+
     useEffect(() => {
         var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
             osmAttribution = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors,' +
@@ -27,10 +29,14 @@ const Map = ({position, draggable, zoom, onPositionChanged}) => {
             map.off()
             map.remove();
         }
-        map = new L.Map('map');
+        map = new L.Map('map', { scrollWheelZoom: false });
         const latLng = new L.LatLng(center.lat, center.lng);
         map.setView(latLng, zoom);
         map.addLayer(osmLayer);
+
+        map.on('click', () => {
+            map.scrollWheelZoom.enable();
+        });
 
         marker = new L.marker(latLng, {draggable:'true'});
         marker.on('dragend', function(event){
