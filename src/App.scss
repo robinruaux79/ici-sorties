@@ -273,15 +273,13 @@ footer {
   width: 100%;
 }
 
-.map {
-  .leaflet-container {
+.map.leaflet-container {
     height:300px;
     width: 100%;
     max-width: 480px;
     max-height: 480px;
     margin: 0 auto;
   }
-}
 
 .react-datepicker-popper {
   z-index: 999 !important;

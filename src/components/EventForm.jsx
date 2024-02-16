@@ -113,6 +113,8 @@ const BtnBetterLink = createButton('Link', '🔗', (args) => {
     }
 });
 
+const Map = lazy(() => import('./Map.jsx'));
+
 function EventForm({children, disabled, className, ...rest}) {
 
     const navigate = useNavigate();
@@ -121,8 +123,6 @@ function EventForm({children, disabled, className, ...rest}) {
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [eventDesc, setEventDesc] = useState('');
-
-    const Map = lazy(() => import('./Map.jsx'));
 
     const initialPos = { lat : 48.853239, lng : 2.3460111 };
     const [eventLoc, setEventLoc] = useState(initialPos);
@@ -225,7 +225,7 @@ function EventForm({children, disabled, className, ...rest}) {
         <div className={"field field-block"}>
             <label>Lieu :</label>
             {<Suspense fallback={<></>}><Map draggable={true} position={initialPos} zoom={11} onPositionChanged={(pos) => {
-                setEventLoc(pos);
+                setEventLoc(p => pos);
             }} /></Suspense>}
         </div>
         <Button type={"submit"} onClick={handleAddEvent}>Ajouter</Button>
