@@ -66,6 +66,7 @@ function App() {
 
                 <Routes>
                     <Route path="/" element={<Outlet />}>
+                        <Route path="" element={<Events />} />
                         <Route path="events/nearby" element={<Events />} />
                         <Route path="event/new" element={<EventForm />} />
                         <Route path="legals" element={<Legals />} />

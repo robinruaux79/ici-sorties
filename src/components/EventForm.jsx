@@ -105,7 +105,7 @@ const BtnBetterLink = createButton('Link', '🔗', (args) => {
         const txt = getSelectionText();
         // eslint-disable-next-line no-alert
         const url = prompt('URL', '');
-        if( url.match(/^https?:\/\\(.*)/) ) {
+        if( url.match(/^https?:\/\/(.*)/) ) {
             document.execCommand('insertHTML', false, '<a href="' + url + '" target="_blank">' + txt + '</a>');
         }else{
             alert('Invalid URL');
