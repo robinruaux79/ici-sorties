@@ -101,10 +101,8 @@ if(cluster.isMaster && isProduction){
 
     app.get('/api/events/nearby', (req, res) => {
         const owner = req.query.owner;
-        console.log(owner, "owner");
         const l = req.query.lng?.split("-");
         const dnow = new Date().getTime();
-        console.log(req.query.page);
         const p = (req.query.page || 1)-1;
         const match = owner ? { "owner": { "$eq": owner } } : {
             "lang": {"$eq": 'fr'},
@@ -114,12 +112,9 @@ if(cluster.isMaster && isProduction){
                 {,
 ] */
         };
-        console.log(match);
-        var MAX_TIMESTAMP = 8640000000000000;
         eventsCollection.aggregate([
             { "$match": match},
             { $sort: {"startsAt": 1, "createdAt":-1}} ]).skip(p * eventsPerPage).limit(eventsPerPage).toArray().then((events) => {
-                console.log(events);
             res.json(events.map(e => {
                 updateEventSummary(e, req.session.user || req.ip);
                 return e;
@@ -129,7 +124,7 @@ if(cluster.isMaster && isProduction){
 
     app.post('/api/event/:id/report', async (req, res) => {
         eventsCollection.findOneAndUpdate({"hash": {"$eq": req.params.id}}, {
-            "$push": {reports: req.session.user || req.ip}
+            "$addToSet": {reports: req.session.user || req.ip}
         }, { returnDocument: 'after' }).then(event => {
             updateEventSummary(event, req.session.user || req.ip);
             res.json({success: true, event});

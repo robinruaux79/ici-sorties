@@ -23,14 +23,14 @@ function Events({children, disabled, className, loc, ...rest}) {
 
     const infiniteScrollRef = useRef(null)
 
-    return (<>
+    return (<div className="events-wrapper">
         <InfiniteScroll className={"content events"} spinner={<div className={"loc-spinner"}></div>} count={eventsPerPage} refreshTime={0} ref={infiniteScrollRef} fetch={queryFnInfinite} renderItem={(e) => {
             return <Event data={e} full={e.hash === currentEvent} onShowInfo={(event) => {
                 setCurrentEvent(event.hash);
             }} />
         }} />
             {isPending && <div className="loc-spinner white"></div>}
-        </>
+        </div>
     )
 }
 

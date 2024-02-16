@@ -1,2 +1,2 @@
 
-export const eventsPerPage = 12;
+export const eventsPerPage = 8;
