@@ -193,7 +193,7 @@ if(cluster.isMaster && isProduction){
     app.get('/issues', (req, res) => {
         fs.readFile('bugs.txt', (err, data) => {
             try {
-                res.json(JSON.parse(data ));
+                res.json({data: data});
             }catch (e){
                 res.json({success: false});
             }
