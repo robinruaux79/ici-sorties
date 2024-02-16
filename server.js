@@ -190,6 +190,16 @@ if(cluster.isMaster && isProduction){
 
     });
 
+    app.get('/issues', (req, res) => {
+        fs.readFile('bugs.txt', (err, data) => {
+            try {
+                res.json(JSON.parse(data ));
+            }catch (e){
+                res.json({success: false});
+            }
+        });
+    });
+
     app.use('*', async (req, res) => {
         const url = req.originalUrl.replace(base, '')
         let template
