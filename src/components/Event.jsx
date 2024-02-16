@@ -118,7 +118,7 @@ function Event({data, children, full, onShowInfo, ...rest}) {
                     <div className="desc" dangerouslySetInnerHTML={{ __html: data.desc }}></div>
                     {availableStart && <div className="start">Débute le {availableStart}</div>}
                     {availableEnd && <div className="end">Se termine le {availableEnd}</div>}
-                    {<Suspense fallback={<>No map found</>}>
+                    {<Suspense fallback={<div className="loc-spinner"></div>}>
                         <Map position={data.loc} zoom={11} draggable={false}/>
                     </Suspense>}
                     <div className="actions">

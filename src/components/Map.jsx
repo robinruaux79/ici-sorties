@@ -38,13 +38,17 @@ const Map = ({position, draggable, zoom, onPositionChanged}) => {
             map.scrollWheelZoom.enable();
         });
 
-        marker = new L.marker(latLng, {draggable:'true'});
+        marker = new L.marker(latLng, {draggable});
         marker.on('dragend', function(event){
-            var marker = event.target;
-            var position = marker.getLatLng();
-            marker.setLatLng(new L.LatLng(position.lat, position.lng),{draggable:'true'});
-            map.panTo(new L.LatLng(position.lat, position.lng))
-            onPositionChanged?.(position);
+            if( draggable ){
+                event.preventDefault();
+
+                var marker = event.target;
+                var position = marker.getLatLng();
+                marker.setLatLng(new L.LatLng(position.lat, position.lng),{draggable:'true'});
+                map.panTo(new L.LatLng(position.lat, position.lng))
+                onPositionChanged?.(event, position);
+            }
         });
         map.addLayer(marker);
     }, []);
