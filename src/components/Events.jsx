@@ -9,6 +9,8 @@ import {InfiniteScroll} from "./InfiniteScroll.jsx";
 import {eventsPerPage} from "../constants.js";
 import { useGeolocated } from "react-geolocated";
 
+let abortController = new AbortController();
+
 function Events({children, disabled, className, loc, ...rest}) {
 
     const [currentPos, setCurrentPos] = useState(loc);
@@ -30,7 +32,12 @@ function Events({children, disabled, className, loc, ...rest}) {
         });
 
     const queryFnInfinite = useCallback((page) => {
-        return fetch('/api/events/nearby?page='+page+(coords || geolocatedMode?'&lat='+(coords?.latitude)+'&lng='+(coords?.longitude): ''))
+        abortController.abort();
+        abortController = new AbortController();
+        return fetch('/api/events/nearby?page='+page+(coords || geolocatedMode?'&lat='+(coords?.latitude)+'&lng='+(coords?.longitude): ''),
+            {
+                signal: abortController.signal
+            })
             .then(e => {
             return e.json()
         })

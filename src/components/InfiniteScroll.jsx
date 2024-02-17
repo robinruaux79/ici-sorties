@@ -7,7 +7,7 @@ export const InfiniteScroll =  forwardRef(({spinner,count, refreshTime, children
     const [page, setPage] = useState(1);
     const [items, setItems] = useState([]);
     const [isPending, setIsPending] = useState(false);
-    const [ended, setEnded] = useState(true);
+    const [ended, setEnded] = useState(false);
 
     const reset = ()=>{
         setPage(1);
