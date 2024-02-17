@@ -1,4 +1,41 @@
 .event {
+  .share-view {
+    position: relative;
+  }
+  .social-networks {
+    display: flex;
+    position: absolute;
+    z-index: 99;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border: 1px solid gray;
+    min-width: calc(32px*3)+24px;
+    gap: 4px;
+    padding: 8px 0px;
+    border-radius: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    justify-items: center;
+    align-items: center;
+    .react-share__ShareButton {
+      height: 32px;
+      svg {
+        width: 32px;
+        height: fit-content;
+      }
+    }
+  }
+  .actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0 4px;
+  }
   .head {
     display: flex;
     cursor: pointer;
@@ -38,5 +75,11 @@
   }
   .dist {
     width: 70px;
+  }
+
+  &.bg-default {
+    @media only screen and (max-width: 320px) {
+      border-radius: 0px;
+    }
   }
 }

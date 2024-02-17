@@ -115,45 +115,6 @@ input[type=checkbox]{
   margin-right: 8px;
 }
 
-.event {
-  .share-view {
-    position: relative;
-  }
-  .social-networks {
-      display: flex;
-      position: absolute;
-      z-index: 99;
-      top: 100%;
-    right: 0;
-      background-color: white;
-      border: 1px solid gray;
-      min-width: calc(32px*3)+24px;
-      gap: 4px;
-      padding: 8px 0px;
-      border-radius: 8px;
-    flex-wrap: wrap;
-      justify-content: center;
-      justify-items: center;
-      align-items: center;
-    .react-share__ShareButton {
-      height: 32px;
-      svg {
-        width: 32px;
-        height: fit-content;
-      }
-    }
-  }
-  .actions {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-evenly;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 0;
-    padding: 0 4px;
-  }
-}
 
 .field {
   display: flex;
@@ -176,7 +137,6 @@ input[type=checkbox]{
 }
 
 .content {
-  padding:8px;
   p {
     a {
       text-decoration: underline;
@@ -231,10 +191,10 @@ input[type=checkbox]{
 
 header {
   max-width: 320px;
-  padding: 16px 16px 0 16px;
-  @media only screen and (min-width: 321px){
-    margin: 20px auto;
-    padding: 0;
+  padding: 6px;
+  margin: 0 auto;
+  @media only screen and (min-width: 480px) {
+    margin: 16px auto;
   }
   h1 {
     &.bg-default {
