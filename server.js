@@ -19,7 +19,7 @@ import * as path from "path";
 import {rand} from "./src/random.js";
 import slug from "slug";
 import sha256 from "sha256";
-import {eventsPerPage} from "./src/constants.js";
+import {eventsPerPage, maxReportsBeforeStateChange} from "./src/constants.js";
 import {createServer} from "vite";
 import http from "http";
 
@@ -151,6 +151,7 @@ if(cluster.isMaster && isProduction){
         const p = (req.query.page || 1)-1;
         const match = owner ? { "owner": { "$eq": owner } } : {
             "lang": {"$eq": 'fr'},
+            "isReported": {"$ne": true},
             "$or" : [{"endsAt": {"$gte":dnow}}, {"endsAt": {"$eq": null}}]
 //            "$or" : [{"startsAt": {"$lte":dnow}}, {"startsAt": {"$eq": null}}]
 /*            "$and": [
@@ -181,8 +182,16 @@ if(cluster.isMaster && isProduction){
             eventsCollection.findOneAndUpdate({"hash": {"$eq": req.params.id}}, {
                 "$addToSet": {reports: req.session.user}
             }, {returnDocument: 'after'}).then(event => {
+
+
+                if( event.reports.length > maxReportsBeforeStateChange){
+                    eventsCollection.updateOne({"hash": {"$eq": req.params.id}}, {
+                        "$set": { "isReported": true }
+                    });
+                }
                 updateEventSummary(event, req.session.user);
                 res.json({success: true, event});
+
             }).catch(() => {
                 res.status(404).json({success: false});
             });
@@ -291,6 +300,7 @@ const updateEventSummary = (event, user) => {
     event.hasReported = event.reports?.includes(user);
     event.reports = undefined;
     event._id = undefined;
+    event.owner = undefined;
 }
 process.on('uncaughtException', function (exception) {
     console.error(exception);
