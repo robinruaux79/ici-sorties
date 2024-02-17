@@ -27,7 +27,6 @@ function Events({children, disabled, className, loc, ...rest}) {
             },
             userDecisionTimeout: 5000,
             onSuccess: (data)=>{
-
             }
         });
 
@@ -44,11 +43,16 @@ function Events({children, disabled, className, loc, ...rest}) {
     }, [coords]);
 
     return (<div className="events-wrapper">
-        <InfiniteScroll className={"content events"} spinner={<div className={"loc-spinner white"}></div>} count={eventsPerPage} refreshTime={refreshTime} ref={infiniteScrollRef} fetch={queryFnInfinite} renderItem={(e) => {
+            {coords && <InfiniteScroll className={"content events"} spinner={<div className={"loc-spinner white"}></div>} count={eventsPerPage} ref={infiniteScrollRef} fetch={queryFnInfinite} renderItem={(e) => {
             return <Event data={e} full={e.hash === currentEvent} onShowInfo={(event) => {
                 setCurrentEvent(event.hash);
             }} />
-        }} />
+        }} />}
+        {!coords && <InfiniteScroll className={"content events"} spinner={<div className={"loc-spinner white"}></div>} count={eventsPerPage} ref={infiniteScrollRef} fetch={queryFnInfinite} renderItem={(e) => {
+            return <Event data={e} full={e.hash === currentEvent} onShowInfo={(event) => {
+                setCurrentEvent(event.hash);
+            }} />
+        }} />}
         </div>
     )
 }

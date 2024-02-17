@@ -111,6 +111,7 @@ function Event({data, children, full, onShowInfo, ...rest}) {
             <div className={"head"} onClick={() => onShowInfo(data)}>
                 <h3>{data.title}</h3>
                 <div className="start">{availableStart}</div>
+                {data.distance && (<span className="dist">{`à ${Math.round(data.distance/1000)} km`}</span>)}
                 {!full && (<Button><FaMagnifyingGlass /></Button>)}
             </div>
             {full && (

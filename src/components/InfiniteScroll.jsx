@@ -13,6 +13,7 @@ export const InfiniteScroll =  forwardRef(({spinner,count, refreshTime, children
         setPage(1);
         setItems([]);
         setEnded(false);
+        setIsPending(false);
     };
 
     useImperativeHandle(ref, () => ({
@@ -22,14 +23,6 @@ export const InfiniteScroll =  forwardRef(({spinner,count, refreshTime, children
             setItems(items)
         }
     }));
-
-    useEffect(() => {
-        reset();
-    }, [refreshTime]);
-
-    useEffect(() => {
-        reset();
-    }, [fetch]);
 
     useEffect(() => {
         const observer = new IntersectionObserver(
