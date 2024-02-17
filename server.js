@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import express from 'express'
 import {MongoClient} from 'mongodb'
+import {OAuth2Client} from 'google-auth-library';
 import csrf from "csurf";
 
 import bodyParser from "body-parser";
@@ -20,9 +21,13 @@ import slug from "slug";
 import sha256 from "sha256";
 import {eventsPerPage} from "./src/constants.js";
 import {createServer} from "vite";
+import http from "http";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const secretsDir = process.env.SECRETS_DIR || './';
+const googleAuthFilepath = secretsDir + 'googleAuth.json';
 
 const readJSON = async (path) => {
     const json = JSON.parse(
@@ -35,6 +40,7 @@ const readJSON = async (path) => {
 
 // Constants
 const isProduction = process.env.NODE_ENV === 'production'
+const domain = process.env.DOMAIN || 'http://localhost';
 const port = process.env.PORT || 5173
 const base = process.env.BASE || '/'
 
@@ -47,6 +53,18 @@ if(cluster.isMaster && isProduction){
         cluster.fork()
     }
 }else {
+
+    const keys = await readJSON(googleAuthFilepath);
+    const oAuth2Client = new OAuth2Client(
+        keys.web.client_id,
+        keys.web.client_secret,
+        domain+"/oauth/google/callback");
+
+    // Generate the url that will be used for the consent dialog.
+    const authorizeUrl = oAuth2Client.generateAuthUrl({
+        access_type: 'offline',
+        scope: 'https://www.googleapis.com/auth/userinfo.profile',
+    });
 
     // Connection URL
     const dbUrl = process.env.MONGODB_URL || 'mongodb://127.0.0.1:27017';
@@ -99,6 +117,34 @@ if(cluster.isMaster && isProduction){
         app.use(base, sirv('./dist/client', {extensions: []}))
     }
 
+
+    app.get('/oauth/google', (req,res) => {
+        res.json({loggedIn: !!req.session.user, authUrl: authorizeUrl });
+    });
+
+    app.get('/oauth/google/callback',async (req,res) => {
+        const code = req.query.code;
+        res.set('Content-Type', 'text/html');
+        if( code ){
+            // Now that we have the code, use that to acquire tokens.
+            const r = await oAuth2Client.getToken(code);
+            // Make sure to set the credentials on the OAuth2 client.
+            oAuth2Client.setCredentials(r.tokens);
+
+            const dataGoogle = await oAuth2Client.request({url: "https://www.googleapis.com/oauth2/v1/userinfo?alt=json"});
+            const { data } = dataGoogle;
+
+            req.session.user = data.id;
+            req.session.save();
+
+            res.send(Buffer.from('Vous êtes bien authentifié ! Redirection...'));
+        }else{
+            console.log(req.query);
+            res.send(Buffer.from('Authentification en erreur.'));
+        }
+    });
+
+
     app.get('/api/events/nearby', (req, res) => {
         const owner = req.query.owner;
         const dnow = new Date().getTime();
@@ -131,14 +177,18 @@ if(cluster.isMaster && isProduction){
     });
 
     app.post('/api/event/:id/report', async (req, res) => {
-        eventsCollection.findOneAndUpdate({"hash": {"$eq": req.params.id}}, {
-            "$addToSet": {reports: req.session.user || req.ip}
-        }, { returnDocument: 'after' }).then(event => {
-            updateEventSummary(event, req.session.user || req.ip);
-            res.json({success: true, event});
-        }).catch(e => {
-            res.status(404).json({success: false});
-        });
+        if( req.session.user ) {
+            eventsCollection.findOneAndUpdate({"hash": {"$eq": req.params.id}}, {
+                "$addToSet": {reports: req.session.user}
+            }, {returnDocument: 'after'}).then(event => {
+                updateEventSummary(event, req.session.user);
+                res.json({success: true, event});
+            }).catch(() => {
+                res.status(404).json({success: false});
+            });
+        }else{
+            res.json({success: false});
+        }
     });
     app.post('/api/event', (req, res) => {
         var bodyStr = '';
@@ -227,6 +277,8 @@ if(cluster.isMaster && isProduction){
 
         res.status(200).set({ 'Content-Type': 'text/html' }).send(html)
     })
+
+    const port = process.env?.PORT || 80;
 
     // Start http server
     app.listen(port, () => {

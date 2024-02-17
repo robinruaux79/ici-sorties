@@ -53,6 +53,7 @@ import {
 
 import {BiLink, BiShare} from "react-icons/bi";
 import {FaMagnifyingGlass} from "react-icons/fa6";
+import LoginButton from "./LoginButton.jsx";
 
 const Map = lazy(() => import('./Map.jsx'));
 
@@ -118,7 +119,6 @@ function Event({data, children, full, onShowInfo, ...rest}) {
             {full && (
                 <div className={"body"}>
                     <div className="desc" dangerouslySetInnerHTML={{ __html: data.desc }}></div>
-                    {availableStart && <div className="start">Débute le {availableStart}</div>}
                     {availableEnd && <div className="end">Se termine le {availableEnd}</div>}
                     {<Suspense fallback={<div className="loc-spinner"></div>}>
                         <Map position={data.loc} zoom={11} draggable={false}/>
@@ -166,9 +166,9 @@ function Event({data, children, full, onShowInfo, ...rest}) {
                             </div>
                         )}
                         </div>
-                        {!hasReported && <Button className={"btn"} onClick={() => {
+                        {!hasReported && <LoginButton className={"btn"} onClick={() => {
                             handleReportEvent()
-                        }}>Signaler</Button>}
+                        }}>Signaler</LoginButton>}
                     </div>
                     {children}
                 </div>
