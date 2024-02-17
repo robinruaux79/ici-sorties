@@ -2,8 +2,7 @@ import fs from 'node:fs'
 import express from 'express'
 import {MongoClient} from 'mongodb'
 import {OAuth2Client} from 'google-auth-library';
-import csrf from "csurf";
-
+import nodemailer from "nodemailer";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser"
 import expressSession from "express-session"
@@ -19,7 +18,7 @@ import * as path from "path";
 import {rand} from "./src/random.js";
 import slug from "slug";
 import sha256 from "sha256";
-import {eventsPerPage, maxReportsBeforeStateChange} from "./src/constants.js";
+import {contactEmail, eventsPerPage, maxReportsBeforeStateChange} from "./src/constants.js";
 import {createServer} from "vite";
 import http from "http";
 
@@ -28,6 +27,14 @@ const __dirname = path.dirname(__filename);
 
 const secretsDir = process.env.SECRETS_DIR || './';
 const googleAuthFilepath = secretsDir + 'googleAuth.json';
+
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.MAIL_USER || '',
+        pass: process.env.MAIL_PASS || '',
+    },
+});
 
 const readJSON = async (path) => {
     const json = JSON.parse(
@@ -183,10 +190,29 @@ if(cluster.isMaster && isProduction){
                 "$addToSet": {reports: req.session.user}
             }, {returnDocument: 'after'}).then(event => {
 
-
                 if( event.reports.length > maxReportsBeforeStateChange){
                     eventsCollection.updateOne({"hash": {"$eq": req.params.id}}, {
                         "$set": { "isReported": true }
+                    }).then(async (e) => {
+
+                        const eventToDisplay = Object.assign({}, event);
+                        updateEventSummary(eventToDisplay, null);
+
+                        const info = await transporter.sendMail({
+                            from: process.env.MAIL_USER || contactEmail,
+                            to: contactEmail,
+                            subject: "[Modération] [Report] " + event.title,
+                            html: "Cet événement a été signalé par des utilisateurs :<br />" + event.desc +
+                                '<dl>'+Object.keys(eventToDisplay).map(e => {
+                                    let v = eventToDisplay[e];
+                                    if( Array.isArray(v) ){
+                                        v = v.join(", ");
+                                    }
+                                    return '<dt>' + e + '</dt><dd>' + v + '</dd>';
+                                })+'</dl>'
+                        });
+
+                        console.log("Message sent: %s", info.messageId);
                     });
                 }
                 updateEventSummary(event, req.session.user);
