@@ -5,10 +5,11 @@
     justify-content: space-between;
     align-items: center;
     padding: 4px;
-    gap: 12px;
+    gap: 4px;
     flex-direction: column;
-    @media only screen and (min-width: 480px) {
+    @media only screen and (min-width: 720px) {
       flex-direction: row;
+      gap: 12px;
     }
     .start {
       padding: 0;
@@ -22,7 +23,8 @@
   }
   h3 {
     flex: 1;
-    font-weight: 400;
+    font-weight: 500;
+    font-size: 100%;
     margin: 0;
     text-align: left;
     padding: 0;
