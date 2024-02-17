@@ -177,13 +177,13 @@ function EventForm({children, disabled, className, ...rest}) {
                 <Toolbar>
                     <BtnBold />
                     <BtnItalic />
-                    <BtnUnderline />,
-                    <BtnStrikeThrough />,
-                    <BtnBulletList />,
-                    <BtnNumberedList />,i
-                    <BtnBetterLink />,
-                    <BtnStyles />,
-                    <BtnClearFormatting />,
+                    <BtnUnderline />
+                    <BtnStrikeThrough />
+                    <BtnBulletList />
+                    <BtnNumberedList />
+                    <BtnBetterLink />
+                    <BtnStyles />
+                    <BtnClearFormatting />
                 </Toolbar>
             </Editor>
         </div>
