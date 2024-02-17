@@ -123,15 +123,14 @@ input[type=checkbox]{
       display: flex;
       position: absolute;
       z-index: 99;
-      right: 0;
       top: 100%;
+    right: 0;
       background-color: white;
       border: 1px solid gray;
       min-width: calc(32px*3)+24px;
       gap: 4px;
       padding: 8px 0px;
       border-radius: 8px;
-    border-top-right-radius: inherit;
     flex-wrap: wrap;
       justify-content: center;
       justify-items: center;

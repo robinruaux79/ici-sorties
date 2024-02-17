@@ -52,7 +52,7 @@ import {
 } from "react-share";
 
 import {BiLink, BiShare} from "react-icons/bi";
-import {FaMagnifyingGlass} from "react-icons/fa6";
+import {FaCircleExclamation, FaMagnifyingGlass} from "react-icons/fa6";
 import LoginButton from "./LoginButton.jsx";
 
 const Map = lazy(() => import('./Map.jsx'));
@@ -168,7 +168,8 @@ function Event({data, children, full, onShowInfo, ...rest}) {
                         </div>
                         {!hasReported && <LoginButton className={"btn"} onClick={() => {
                             handleReportEvent()
-                        }}>Signaler</LoginButton>}
+                        }}><FaCircleExclamation /></LoginButton>}
+                        {hasReported && <>signalé!</>}
                     </div>
                     {children}
                 </div>

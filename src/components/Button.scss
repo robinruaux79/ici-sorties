@@ -1,5 +1,9 @@
 
 .btn {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  position: relative;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
