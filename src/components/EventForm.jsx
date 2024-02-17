@@ -199,12 +199,10 @@ function EventForm({children, disabled, className, ...rest}) {
                 setStartDate(date)
             }}
             selectsStart
-            startDate={startDate}
             endDate={endDate}
             dateFormat={"dd/MM/yyyy HH:mm"}
             locale={'fr'}
             showTimeSelect
-            filterTime={filterPassedTime}
         />
         </div>
         <div className="field">
