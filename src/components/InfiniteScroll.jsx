@@ -7,7 +7,7 @@ export const InfiniteScroll =  forwardRef(({spinner,count, refreshTime, children
     const [page, setPage] = useState(1);
     const [items, setItems] = useState([]);
     const [isPending, setIsPending] = useState(false);
-    const [ended, setEnded] = useState(false);
+    const [ended, setEnded] = useState(true);
 
     const reset = ()=>{
         setPage(1);
@@ -26,6 +26,10 @@ export const InfiniteScroll =  forwardRef(({spinner,count, refreshTime, children
     useEffect(() => {
         reset();
     }, [refreshTime]);
+
+    useEffect(() => {
+        reset();
+    }, [fetch]);
 
     useEffect(() => {
         const observer = new IntersectionObserver(
@@ -55,7 +59,7 @@ export const InfiniteScroll =  forwardRef(({spinner,count, refreshTime, children
                 observer.unobserve(anchorRef.current);
             }
         };
-    }, [anchorRef, page, refreshTime]);
+    }, [anchorRef, page, refreshTime, fetch]);
 
     return <div className={"infinite-scroll"}>
         <div {...rest}>

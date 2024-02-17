@@ -101,7 +101,6 @@ if(cluster.isMaster && isProduction){
 
     app.get('/api/events/nearby', (req, res) => {
         const owner = req.query.owner;
-        const l = req.query.lng?.split("-");
         const dnow = new Date().getTime();
         const p = (req.query.page || 1)-1;
         const match = owner ? { "owner": { "$eq": owner } } : {
@@ -112,9 +111,18 @@ if(cluster.isMaster && isProduction){
                 {,
 ] */
         };
-        eventsCollection.aggregate([
-            { "$match": match},
-            { $sort: {"startsAt": 1, "createdAt":-1}} ]).skip(p * eventsPerPage).limit(eventsPerPage).toArray().then((events) => {
+
+        const agg = [];
+        if (req.query.lat && req.query.lng)
+            agg.push({ "$geoNear": {
+                    near: { type: "Point", coordinates: [parseFloat(req.query.lat), parseFloat(req.query.lng)] },
+                    distanceField: "distance",
+                    spherical: true,
+                }});
+        agg.push({ "$match": match});
+        agg.push({ "$sort": {"distance": 1, "startsAt": 1, "createdAt":-1}});
+
+        eventsCollection.aggregate(agg).skip(p * eventsPerPage).limit(eventsPerPage).toArray().then((events) => {
             res.json(events.map(e => {
                 updateEventSummary(e, req.session.user || req.ip);
                 return e;
@@ -174,6 +182,9 @@ if(cluster.isMaster && isProduction){
                 typeof(event.title) === 'string' && event.title?.length > 3 &&
                 typeof(event.desc) === 'string' && event.desc.length <= 512 &&
                 typeof(event.loc) === 'object' && typeof(event.loc.lat) === 'number' && typeof(event.loc.lng) === 'number' ) {
+
+                event.loc = [event.loc.lat, event.loc.lng];
+
                 const element = await eventsCollection.insertOne(event);
                 event._id = element.insertedId;
                 req.session.events = req.session.events ? req.session.events + 1 : 1;

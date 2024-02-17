@@ -6,7 +6,9 @@ import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
 let DefaultIcon = L.icon({
     iconUrl: icon,
-    shadowUrl: iconShadow
+    shadowUrl: iconShadow,
+    iconSize:     [25, 41], // size of the icon
+    iconAnchor:   [12, 40], // point of the icon which will correspond to marker's location
 });
 
 L.Marker.prototype.options.icon = DefaultIcon;
@@ -30,7 +32,7 @@ const Map = ({position, draggable, zoom, onPositionChanged}) => {
             map.remove();
         }
         map = new L.Map('map', { scrollWheelZoom: false });
-        const latLng = new L.LatLng(center.lat, center.lng);
+        const latLng = new L.LatLng(center[0] || center.lat, center[1] || center.lng);
         map.setView(latLng, zoom);
         map.addLayer(osmLayer);
 
@@ -41,13 +43,11 @@ const Map = ({position, draggable, zoom, onPositionChanged}) => {
         marker = new L.marker(latLng, {draggable});
         marker.on('dragend', function(event){
             if( draggable ){
-                event.preventDefault();
-
                 var marker = event.target;
                 var position = marker.getLatLng();
                 marker.setLatLng(new L.LatLng(position.lat, position.lng),{draggable:'true'});
                 map.panTo(new L.LatLng(position.lat, position.lng))
-                onPositionChanged?.(event, position);
+                onPositionChanged?.(position);
             }
         });
         map.addLayer(marker);

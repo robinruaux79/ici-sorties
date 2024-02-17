@@ -224,7 +224,7 @@ function EventForm({children, disabled, className, ...rest}) {
         </div>
         <div className={"field field-block"}>
             <label>Lieu :</label>
-            {<Suspense fallback={<></>}><Map draggable={true} position={initialPos} zoom={11} onPositionChanged={(event, pos) => {
+            {<Suspense fallback={<></>}><Map draggable={true} position={initialPos} zoom={11} onPositionChanged={(pos) => {
                 setEventLoc(p => pos);
             }} /></Suspense>}
         </div>
