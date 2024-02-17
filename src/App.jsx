@@ -25,15 +25,15 @@ function App() {
     const backgrounds = [
         {
             bg: <NewYear />,
-            //filter: (date => date.getMonth() > 11 || date.getMonth() < 2)
+            filter: (date => date.getMonth() > 10 || (date.getDate() < 10 && date.getMonth() < 1) )
         },
         {
             bg: <Spring />,
-            //filter: (date => date.getMonth() > 2 || date.getMonth() < 6)
+            filter: (date => date.getMonth() > 3 && date.getMonth() < 4)
         },
         {
             bg: <Summer />,
-            //filter: (date => date.getMonth() > 11 || date.getMonth() < 2)//filter: (date => date.getMonth() > 5 && date.getMonth() < 8)
+            filter: (date => date.getMonth() > 4 && date.getMonth() < 7)
         },
     ];
 
@@ -49,51 +49,52 @@ function App() {
         <div className={`background${bg?' filled': ''}`}>
             {bg}
         </div>
-
         <div className="foreground">
-            <header id={"header"}>
-                <h1 className={`${bg ? ' bg-default' : ''}`}>ici !<sup>®</sup></h1>
-                <p className="bg-default slogan">Des sorties et des événements à proximité !</p>
-                <nav role={"navigation"}>
-                    <ul className="menu menu-main">
-                        <li><NavLink to={"/events/nearby"} className="btn">Près d&apos;ici</NavLink></li>
-                        <li><NavLink to={"/event/new"} className="btn">Publier un événement</NavLink></li>
+            <div className="website-content">
+                <header id={"header"}>
+                    <h1 className={`${bg ? ' bg-default' : ''}`}>ici !<sup>®</sup></h1>
+                    <p className="bg-default slogan">Des sorties et des événements à proximité !</p>
+                    <nav role={"navigation"}>
+                        <ul className="menu menu-main">
+                            <li><NavLink to={"/events/nearby"} className="btn">Près d&apos;ici</NavLink></li>
+                            <li><NavLink to={"/event/new"} className="btn">Publier un événement</NavLink></li>
+                        </ul>
+                    </nav>
+                </header>
+
+                <main>
+
+                    <Routes>
+                        <Route path="/" element={<Outlet />}>
+                            <Route path="" element={<Events />} />
+                            <Route path="events/nearby" element={<Events />} />
+                            <Route path="event/new" element={<EventForm />} />
+                            <Route path="legals" element={<Legals />} />
+                            <Route path="cgu" element={<CGU />} />
+                            <Route path="credits" element={<Credits />} />
+                        </Route>
+                    </Routes>
+                </main>
+
+                <footer className={"bg-default"}>
+                    <ul>
+                        <li><NavLink onClick={() => {
+                            ReactGA.event({
+                                category: 'navigation',
+                                action: 'clicked',
+                                label: 'Mentions légales (footer)',
+                            });
+                        }} to={"/legals"}><Trans i18nKey={"links.legals"}>Mentions légales</Trans></NavLink></li>
+                        <li><NavLink onClick={() => {
+                            ReactGA.event({
+                                category: 'navigation',
+                                action: 'clicked',
+                                label: 'CGU (footer)',
+                            });
+                        }} to={"/cgu"}><Trans i18nKey={"links.cgu"}>CGU</Trans></NavLink></li>
                     </ul>
-                </nav>
-            </header>
-
-            <main>
-
-                <Routes>
-                    <Route path="/" element={<Outlet />}>
-                        <Route path="" element={<Events />} />
-                        <Route path="events/nearby" element={<Events />} />
-                        <Route path="event/new" element={<EventForm />} />
-                        <Route path="legals" element={<Legals />} />
-                        <Route path="cgu" element={<CGU />} />
-                        <Route path="credits" element={<Credits />} />
-                    </Route>
-                </Routes>
-            </main>
-
-            <footer className={"bg-default"}>
-                <ul>
-                    <li><NavLink onClick={() => {
-                        ReactGA.event({
-                            category: 'navigation',
-                            action: 'clicked',
-                            label: 'Mentions légales (footer)',
-                        });
-                    }} to={"/legals"}><Trans i18nKey={"links.legals"}>Mentions légales</Trans></NavLink></li>
-                    <li><NavLink onClick={() => {
-                        ReactGA.event({
-                            category: 'navigation',
-                            action: 'clicked',
-                            label: 'CGU (footer)',
-                        });
-                    }} to={"/cgu"}><Trans i18nKey={"links.cgu"}>CGU</Trans></NavLink></li>
-                </ul>
-            </footer>
+                </footer>
+            </div>
         </div>
     </QueryClientProvider>;
 }

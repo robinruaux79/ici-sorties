@@ -5,7 +5,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 4px;
-    gap: 4px;
+    gap: 12px;
     flex-direction: column;
     @media only screen and (min-width: 480px) {
       flex-direction: row;
@@ -22,7 +22,7 @@
   }
   h3 {
     flex: 1;
-    font-weight: normal;
+    font-weight: 400;
     margin: 0;
     text-align: left;
     padding: 0;
