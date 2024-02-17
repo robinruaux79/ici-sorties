@@ -35,7 +35,11 @@ footer {
     margin: 0;
     padding: 0;
     display: flex;
-    gap: 8px
+    gap: 8px;
+    align-items: center;
+  }
+  li {
+    text-align: center;
   }
   li + li {
     border-left: 1px solid gray;
@@ -137,6 +141,7 @@ input[type=checkbox]{
 }
 
 .content {
+  padding: 4px 8px;
   p {
     a {
       text-decoration: underline;
