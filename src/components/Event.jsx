@@ -53,9 +53,10 @@ import {
 
 import {BiLink, BiShare} from "react-icons/bi";
 import {FaMagnifyingGlass} from "react-icons/fa6";
-function Event({data, children, full, onShowInfo, ...rest}) {
 
-    const Map = lazy(() => import('./Map.jsx'));
+const Map = lazy(() => import('./Map.jsx'));
+
+function Event({data, children, full, onShowInfo, ...rest}) {
 
     const {i18n, t} = useTranslation();
     const [showSocialNetworks, setSocialNetworkVisible] = useState(false);
@@ -129,7 +130,7 @@ function Event({data, children, full, onShowInfo, ...rest}) {
                                 '_blank' // <- This is what makes it open in a new window.
                             );
                         }}>Calcul d'itinéraire</Button>
-                       <div className="share-view" onClick={() => setSocialNetworkVisible(!showSocialNetworks)} onMouseOver={() => setSocialNetworkVisible(true)}
+                        <div className="share-view" onClick={() => setSocialNetworkVisible(!showSocialNetworks)} onMouseOver={() => setSocialNetworkVisible(true)}
                              onMouseOut={() => setSocialNetworkVisible(false)}>
                             <Button title={t('share_on_social_networks', 'Partager sur les réseaux')}
                                     className={"btn btn-link"}><BiShare /></Button>
