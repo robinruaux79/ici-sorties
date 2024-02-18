@@ -72,6 +72,9 @@
   }
   .desc {
     padding-bottom: 3px;
+    ul, ol {
+      text-align: left;
+    }
   }
   .dist {
     width: 70px;
