@@ -16,14 +16,6 @@ export const InfiniteScroll =  forwardRef(({spinner,count, localKey, refreshTime
         setIsPending(false);
     };
 
-    useEffect(() => {
-        if( localKey ){
-            const p = items.length<= count ? Math.floor(items.length/count)+1 : Math.ceil(items.length / count)+1;
-            console.log("page key", p);
-            setPage(p);
-        }
-    }, [localKey])
-
     useImperativeHandle(ref, () => ({
         // Expose parent function to parent component
         reset,
@@ -31,6 +23,10 @@ export const InfiniteScroll =  forwardRef(({spinner,count, localKey, refreshTime
             setItems(items)
         }
     }));
+
+    useEffect(() => {
+        reset();
+    }, [refreshTime]);
 
     useEffect(() => {
         const observer = new IntersectionObserver(

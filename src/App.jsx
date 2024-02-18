@@ -1,7 +1,7 @@
-import React from "react";
+import React, {useState} from "react";
 import {QueryClient, QueryClientProvider} from 'react-query'
 import './App.scss'
-import {NavLink, Outlet, Route, Routes} from "react-router-dom";
+import {NavLink, Outlet, Route, Routes, useNavigate} from "react-router-dom";
 import Legals from "./components/Legals.jsx";
 import CGU from "./components/CGU.jsx";
 import {Credits} from "./components/Credits.jsx";
@@ -18,10 +18,12 @@ import NewYear from "./icons/new-year-3004243.svg?react";
 
 import EventForm from "./components/EventForm.jsx";
 import Events from "./components/Events.jsx";
+import Button from "./components/Button.jsx";
+import {FaLocationDot, FaNoteSticky} from "react-icons/fa6";
 
 function App() {
     const date = new Date();
-
+    const navigate = useNavigate();
     const backgrounds = [
         {
             bg: <NewYear />,
@@ -45,6 +47,9 @@ function App() {
             break;
         }
     }
+
+    const [resetTime, setResetTime] = useState(0);
+
     return <QueryClientProvider client={queryClient}>
         <div className={`background${bg?' filled': ''}`}>
             {bg}
@@ -56,8 +61,12 @@ function App() {
                     <p className="bg-default slogan">Des sorties et des événements à proximité !</p>
                     <nav role={"navigation"}>
                         <ul className="menu menu-main">
-                            <li><NavLink to={"/events/nearby"} className="btn">Près d&apos;ici</NavLink></li>
-                            <li><NavLink to={"/event/new"} className="btn">Publier un événement</NavLink></li>
+                            <li><Button onClick={() => {
+                                navigate("/events/nearby?sort=loc", { replace : true});
+                                setResetTime(new Date().getTime());
+                            }} className="btn-big"><FaLocationDot />Près d&apos;ici</Button></li>
+                            <li><NavLink to={"/event/new"} className="btn btn-big">
+                                <FaNoteSticky />Publier un événement</NavLink></li>
                         </ul>
                     </nav>
                 </header>
@@ -66,8 +75,8 @@ function App() {
 
                     <Routes>
                         <Route path="/" element={<Outlet />}>
-                            <Route path="" element={<Events />} />
-                            <Route path="events/nearby" element={<Events />} />
+                            <Route path="" element={<Events resetTime={resetTime} />} />
+                            <Route path="events/nearby" element={<Events resetTime={resetTime} />} />
                             <Route path="event/new" element={<EventForm />} />
                             <Route path="legals" element={<Legals />} />
                             <Route path="cgu" element={<CGU />} />
