@@ -1,6 +1,6 @@
 export const contactEmail = 'anonympins@gmail.com';
 
-export const eventsPerPage = 16;
+export const eventsPerPage = 64;
 
 export const maxReportsBeforeStateChange = 3;
 
