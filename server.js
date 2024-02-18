@@ -21,6 +21,7 @@ import sha256 from "sha256";
 import {contactEmail, eventsPerPage, maxReportsBeforeStateChange} from "./src/constants.js";
 import {createServer} from "vite";
 import http from "http";
+import {cronOpenAgenda} from "./cron.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -209,7 +210,7 @@ if(cluster.isMaster && isProduction){
                                         v = v.join(", ");
                                     }
                                     return '<dt>' + e + '</dt><dd>' + v + '</dd>';
-                                })+'</dl>'
+                                }).join('')+'</dl>'
                         });
 
                         console.log("Message sent: %s", info.messageId);
@@ -320,6 +321,7 @@ if(cluster.isMaster && isProduction){
         console.log(`Server started at http://localhost:${port}`)
     })
 
+    cronOpenAgenda(eventsCollection);
 }
 
 const updateEventSummary = (event, user) => {

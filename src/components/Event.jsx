@@ -121,7 +121,7 @@ function Event({data, children, full, onShowInfo, ...rest}) {
                     <div className="desc" dangerouslySetInnerHTML={{ __html: data.desc }}></div>
                     {availableEnd && <div className="end">Se termine le {availableEnd}</div>}
                     {<Suspense fallback={<div className="loc-spinner"></div>}>
-                        <Map position={data.loc} zoom={11} draggable={false}/>
+                        <Map position={data.loc} zoom={14} draggable={false}/>
                     </Suspense>}
                     <div className="actions">
                         <Button className={"btn"} onClick={() => {
