@@ -24,11 +24,10 @@ export const cronOpenAgenda = (eventsCollection) => {
             });
             resp.on('end', async () => {
                 const d = JSON.parse(data);
-
                 d.events.map(e => {
-                    return { ...e,
+                    return {
                         title: e.title.fr,
-                        desc: e.description.fr,
+                        desc: e.html.fr,
                         loc: e.latitude && e.longitude ? [e.latitude, e.longitude] : undefined,
                         hash: sha256(e.title.fr + e.description.fr),
                         createdAt: new Date(e.createdAt).getTime(),

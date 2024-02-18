@@ -6,5 +6,5 @@ export const maxReportsBeforeStateChange = 3;
 
 export const openAgenda = {
     maxPages : 15,
-    timeout: 10000,
+    timeout: 30000,
 }
