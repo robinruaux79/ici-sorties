@@ -59,6 +59,7 @@ function Event({data, children, full, onShowInfo, ...rest}) {
 
     const Map = lazy(() => import('./Map.jsx'));
 
+    const [copyLinkEnabled, setCopyLinkEnabled] = useState(true)
     const {i18n, t} = useTranslation();
     const [showSocialNetworks, setSocialNetworkVisible] = useState(false);
 
@@ -88,6 +89,10 @@ function Event({data, children, full, onShowInfo, ...rest}) {
             })}} defaults={'{{endsAt}}'}></Trans>;
 
     const [hasReported, setHasReported] = useState(data.hasReported);
+
+    const handleCopyLink = () => {
+        navigator.clipboard.writeText(getUrlBase() + "/event/"+data.slug);
+    }
 
     const handleReportEvent = async () => {
         fetch('/api/event/'+data.hash+'/report', {
@@ -133,6 +138,7 @@ function Event({data, children, full, onShowInfo, ...rest}) {
                                 '_blank' // <- This is what makes it open in a new window.
                             );
                         }} title={t('itinerary_google', "Utilisez la navigation Google pour vous retrouver facilement.")}>Calcul d'itinéraire</Button>
+
                         <div className="share-view" onClick={() => setSocialNetworkVisible(!showSocialNetworks)} onMouseOver={() => setSocialNetworkVisible(true)}
                              onMouseOut={() => setSocialNetworkVisible(false)}>
                             <Button title={t('share_on_social_networks', 'Partager sur les réseaux sciaux')}
@@ -169,6 +175,7 @@ function Event({data, children, full, onShowInfo, ...rest}) {
                             </div>
                         )}
                         </div>
+                        <Button title={t('copy_link', 'Copier le lien')} onClick={handleCopyLink}><BiLink /></Button>
                         {!hasReported && <LoginButton className={"btn"} onClick={() => {
                             handleReportEvent()
                         }} title={t("report_content","Signaler du contenu indésirable")}><FaCircleExclamation /></LoginButton>}

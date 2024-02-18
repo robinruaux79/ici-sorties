@@ -31,6 +31,10 @@
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+.btn-disabled {
+  opacity: 0.4;
+}
+
 .btn-disabled:hover {
   border-color: transparent;
 
@@ -39,7 +43,13 @@
 .btn-disabled:focus-visible {
   outline: none;
 }
-
+.btn-disabled {
+  &:active {
+    position: relative;
+    top: 0px;
+    left: 0px;
+  }
+}
 
 
 @media (prefers-color-scheme: light) {
