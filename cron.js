@@ -2,8 +2,9 @@ import {openAgenda} from "./src/constants.js";
 import https from "https";
 import sha256 from "sha256";
 import slug from "slug";
+import {rand} from "./src/random.js";
 
-export const cronOpenAgenda = (eventsCollection) => {
+export const cronOpenAgenda = (eventsCollection, timeout) => {
 
     const openAgendas = (agendas) => {
         let i = 0;
@@ -29,7 +30,7 @@ export const cronOpenAgenda = (eventsCollection) => {
                         title: e.title.fr,
                         desc: e.html.fr,
                         loc: e.latitude && e.longitude ? [e.latitude, e.longitude] : undefined,
-                        hash: sha256(e.title.fr + e.description.fr),
+                        hash: sha256(e.title?.fr && e.description?.fr ? e.title.fr + e.description.fr : new Date().getTime()+''+rand(1,10000)),
                         createdAt: new Date(e.createdAt).getTime(),
                         lang: 'fr',
                         slug: e.slug || slug(e.title.fr),
@@ -55,9 +56,9 @@ export const cronOpenAgenda = (eventsCollection) => {
                 const events = JSON.parse(data);
                 openAgendas(events?.agendas);
                 if( page > openAgenda.maxPages )
-                    setTimeout(() => openNewPage(1), openAgenda.timeout )
+                    setTimeout(() => openNewPage(1), timeout )
                 else
-                    setTimeout(() => openNewPage(page + 1), openAgenda.timeout )
+                    setTimeout(() => openNewPage(page + 1), timeout )
             });
         });
     }

@@ -18,7 +18,13 @@ import * as path from "path";
 import {rand} from "./src/random.js";
 import slug from "slug";
 import sha256 from "sha256";
-import {contactEmail, eventsPerPage, maxReportsBeforeStateChange} from "./src/constants.js";
+import {
+    contactEmail,
+    eventsPerPage,
+    maxEventsPerUser,
+    maxReportsBeforeStateChange,
+    openAgenda
+} from "./src/constants.js";
 import {createServer} from "vite";
 import http from "http";
 import {cronOpenAgenda} from "./cron.js";
@@ -258,7 +264,7 @@ if(cluster.isMaster && isProduction){
                 return m;
             });
             const dnow = new Date().getTime();
-            const max = 10;
+            const max = isProduction ? maxEventsPerUser : 200;
             console.log(req.session.events + "events deja créés !", event);
             const canCreate = (req.session.events || 0) < max || req.session.ts < dnow - 86400000;
             if (canCreate &&
@@ -321,7 +327,8 @@ if(cluster.isMaster && isProduction){
         console.log(`Server started at http://localhost:${port}`)
     })
 
-    cronOpenAgenda(eventsCollection);
+    if (isProduction)
+        cronOpenAgenda(eventsCollection, openAgenda.timeout);
 }
 
 const updateEventSummary = (event, user) => {
