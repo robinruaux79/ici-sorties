@@ -185,7 +185,7 @@ if(cluster.isMaster && isProduction){
         agg.push({ "$match": match});
 
         const srt = {};
-        if( req.query.sort === 'starts' )
+        if( req.query.sort === 'start' )
             srt.startsAt = 1;
         else if( req.query.sort === 'loc')
             srt.distance = 1;
