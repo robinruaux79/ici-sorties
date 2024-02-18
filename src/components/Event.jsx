@@ -55,9 +55,9 @@ import {BiLink, BiShare} from "react-icons/bi";
 import {FaCircleExclamation, FaMagnifyingGlass} from "react-icons/fa6";
 import LoginButton from "./LoginButton.jsx";
 
-const Map = lazy(() => import('./Map.jsx'));
-
 function Event({data, children, full, onShowInfo, ...rest}) {
+
+    const Map = lazy(() => import('./Map.jsx'));
 
     const {i18n, t} = useTranslation();
     const [showSocialNetworks, setSocialNetworkVisible] = useState(false);
