@@ -33,6 +33,11 @@ export const cronOpenAgenda = (eventsCollection, timeout) => {
                         hash: sha256(e.title?.fr && e.description?.fr ? e.title.fr + e.description.fr : new Date().getTime()+''+rand(1,10000)),
                         createdAt: new Date(e.createdAt).getTime(),
                         lang: 'fr',
+                        address: e.address,
+                        postalCode: e.postalCode,
+                        city: e.city,
+                        department: e.department,
+                        region: e.region,
                         slug: e.slug || slug(e.title.fr),
                         startsAt: new Date(e.firstDate + ' ' + e.firstTimeStart).getTime(),
                         endsAt: new Date(e.lastDate + ' ' + e.lastTimeStart).getTime()
