@@ -4,6 +4,8 @@ import L from 'leaflet';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
+import "./Map.scss";
+
 let DefaultIcon = L.icon({
     iconUrl: icon,
     shadowUrl: iconShadow,
@@ -27,11 +29,8 @@ const Map = ({position, draggable, zoom, onPositionChanged}) => {
                 ' <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
             osmLayer = new L.TileLayer(osmUrl, {maxZoom: 18, attribution: osmAttribution});
 
-        if( map ){
-            map.off()
-            map.remove();
-        }
-        map = new L.Map('map', { scrollWheelZoom: false });
+        document.getElementById('map').innerHTML = "<div id='map-inner' style='position: absolute; top: 0; left:0;width: 100%; height: 100%;'></div>";
+        map = new L.Map('map-inner', { scrollWheelZoom: false });
         const latLng = new L.LatLng(center[0] || center.lat, center[1] || center.lng);
         map.setView(latLng, zoom);
         map.addLayer(osmLayer);
@@ -51,6 +50,13 @@ const Map = ({position, draggable, zoom, onPositionChanged}) => {
             }
         });
         map.addLayer(marker);
+        return () => {
+            if( map ){
+                map.off()
+                map.remove();
+            }
+            map = null;
+        }
     }, []);
 
     return <div id={"map"} className="map">
