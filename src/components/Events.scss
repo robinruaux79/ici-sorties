@@ -8,9 +8,14 @@
   display: flex;
   flex-direction: row;
   gap: 8px;
+  flex-wrap: wrap;
   .first-part {
     flex: 1;
+    display: flex;
+    input[type=text] {
+      width: 100% ;
+      box-sizing: border-box;
+    }
   }
-  padding-right: 70px;
   margin-bottom: 8px;
 }

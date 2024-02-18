@@ -176,13 +176,20 @@ if(cluster.isMaster && isProduction){
         };
 
         const agg = [];
-        if (req.query.lat && req.query.lng)
-            agg.push({ "$geoNear": {
-                    near: { type: "Point", coordinates: [parseFloat(req.query.lat), parseFloat(req.query.lng)] },
+        if (req.query.query)
+            agg.push({
+                "$match": { ...match, "$text": { "$search": req.query.query } },
+            });
+        else if (req.query.lat && req.query.lng) {
+            agg.push({
+                "$geoNear": {
+                    near: {type: "Point", coordinates: [parseFloat(req.query.lat), parseFloat(req.query.lng)]},
                     distanceField: "distance",
                     spherical: true,
-                }});
-        agg.push({ "$match": match});
+                }
+            });
+            agg.push({"$match": match});
+        }
 
         const srt = {};
         if( req.query.sort === 'start' )

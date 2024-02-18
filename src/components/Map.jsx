@@ -21,7 +21,6 @@ const Map = ({position, draggable, zoom, onPositionChanged}) => {
     const mapContainerRef = useRef(null);
 
     let map, marker;
-    scrollWheelZoom: false
 
     useEffect(() => {
         var osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',

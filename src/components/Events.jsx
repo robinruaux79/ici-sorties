@@ -1,4 +1,3 @@
-
 import "./Events.scss"
 import {useQuery as useQueryParams} from "../hooks.js"
 import Event from "./Event.jsx";
@@ -17,8 +16,10 @@ let abortController = new AbortController();
 
 function Events({children, disabled, className, resetTime, loc, ...rest}) {
 
+
     const navigate = useNavigate();
     const [currentPos, setCurrentPos] = useState(loc);
+    const [searchValue, setSearchValue] = useState('');
     const [currentEvent, setCurrentEvent] = useState('');
     const [geolocatedMode, setGeolocatedMode] = useState(false);
     const [refreshTime, setRefreshTime] = useState(0);
@@ -41,7 +42,7 @@ function Events({children, disabled, className, resetTime, loc, ...rest}) {
     const queryFnInfinite = useCallback((page) => {
         abortController.abort();
         abortController = new AbortController();
-        return fetch('/api/events/nearby?sort='+(query.get("sort") || (geolocatedMode?'loc':'start'))+
+        return fetch('/api/events/nearby?query='+encodeURIComponent(searchValue)+'&sort='+(query.get("sort") || (geolocatedMode?'loc':'start'))+
             '&page='+page+(coords?'&lat='+(coords?.latitude)+'&lng='+(coords?.longitude): ''),
             {
                 signal: abortController.signal
@@ -49,27 +50,31 @@ function Events({children, disabled, className, resetTime, loc, ...rest}) {
             .then(e => {
             return e.json()
         })
-    }, [coords, geolocatedMode, query]);
+    }, [coords, geolocatedMode, query, searchValue]);
     return (<div className="events-wrapper">
-            {coords && <div className="events-header">
-                <div className="first-part"></div>
-                <Button onClick={() => {
+            <div className="events-header">
+                <div className="first-part">
+                    <input type="text" value={searchValue} onChange={e => {
+                        setSearchValue(e.target.value);
+                        infiniteScrollRef.current.reset();
+                    }} />
+                </div>
+                {coords && <><Button onClick={() => {
                     setGeolocatedMode(false);
                     navigate('/events/nearby?sort=start');
                     infiniteScrollRef.current.reset();
-                }}>Par date</Button>
-                {<Button onClick={() => {
+                }}>Par date</Button><Button onClick={() => {
                     setGeolocatedMode(true);
                     navigate('/events/nearby?sort=loc');
                     infiniteScrollRef.current.reset();
-                }}>Par distance</Button>}
-            </div>}
-            {coords && <InfiniteScroll refreshTime={resetTime} localKey={'is'} className={"content events"} spinner={<div className={"loc-spinner white"}></div>} count={eventsPerPage} ref={infiniteScrollRef} fetch={queryFnInfinite} renderItem={(e) => {
+                }}>Par distance</Button></>}
+            </div>
+            {coords && <InfiniteScroll refreshTime={resetTime} localKey={'is'} className={"events"} spinner={<div className={"loc-spinner white"}></div>} count={eventsPerPage} ref={infiniteScrollRef} fetch={queryFnInfinite} renderItem={(e) => {
             return <Event data={e} full={e.hash === currentEvent} onShowInfo={(event) => {
                 setCurrentEvent(event.hash);
             }} />
         }} />}
-        {!coords && <InfiniteScroll refreshTime={resetTime} localKey={'is'} className={"content events"} spinner={<div className={"loc-spinner white"}></div>} count={eventsPerPage} ref={infiniteScrollRef} fetch={queryFnInfinite} renderItem={(e) => {
+        {!coords && <InfiniteScroll refreshTime={resetTime} localKey={'is'} className={"events"} spinner={<div className={"loc-spinner white"}></div>} count={eventsPerPage} ref={infiniteScrollRef} fetch={queryFnInfinite} renderItem={(e) => {
             return <Event data={e} full={e.hash === currentEvent} onShowInfo={(event) => {
                 setCurrentEvent(event.hash);
             }} />
