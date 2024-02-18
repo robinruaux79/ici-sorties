@@ -10,6 +10,7 @@ import { useGeolocated } from "react-geolocated";
 import Button from "./Button.jsx";
 import {navigate} from "vite-plugin-ssr/client/router";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
+import {debounce} from "../util.js";
 
 let abortController = new AbortController();
 
@@ -42,7 +43,9 @@ function Events({children, disabled, className, resetTime, loc, ...rest}) {
     const queryFnInfinite = useCallback((page) => {
         abortController.abort();
         abortController = new AbortController();
-        return fetch('/api/events/nearby?query='+encodeURIComponent(searchValue)+'&sort='+(query.get("sort") || (geolocatedMode?'loc':'start'))+
+        return fetch('/api/events/nearby?'+
+            (searchValue!==''?'query='+encodeURIComponent(searchValue):'')+
+            '&sort='+(query.get("sort") || (geolocatedMode?'loc':'start'))+
             '&page='+page+(coords?'&lat='+(coords?.latitude)+'&lng='+(coords?.longitude): ''),
             {
                 signal: abortController.signal
@@ -51,14 +54,16 @@ function Events({children, disabled, className, resetTime, loc, ...rest}) {
             return e.json()
         })
     }, [coords, geolocatedMode, query, searchValue]);
+
     return (<div className="events-wrapper">
             <div className="events-header">
                 <div className="first-part">
-                    <input type="text" value={searchValue} onChange={e => {
+                    <input type="text" placeholder="Rechercher une sortie" value={searchValue} onChange={e => {
                         setSearchValue(e.target.value);
                         infiniteScrollRef.current.reset();
                     }} />
                 </div>
+                <div className="second-part">
                 {coords && <><Button onClick={() => {
                     setGeolocatedMode(false);
                     navigate('/events/nearby?sort=start');
@@ -68,6 +73,7 @@ function Events({children, disabled, className, resetTime, loc, ...rest}) {
                     navigate('/events/nearby?sort=loc');
                     infiniteScrollRef.current.reset();
                 }}>Par distance</Button></>}
+                </div>
             </div>
             {coords && <InfiniteScroll refreshTime={resetTime} localKey={'is'} className={"events"} spinner={<div className={"loc-spinner white"}></div>} count={eventsPerPage} ref={infiniteScrollRef} fetch={queryFnInfinite} renderItem={(e) => {
             return <Event data={e} full={e.hash === currentEvent} onShowInfo={(event) => {

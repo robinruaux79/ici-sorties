@@ -10,12 +10,20 @@
   gap: 8px;
   flex-wrap: wrap;
   .first-part {
-    flex: 1;
-    display: flex;
+    margin: 0 auto;
+    @media only screen and (min-width: 420px) {
+      flex: 1;
+      display: flex;
+    }
     input[type=text] {
       width: 100% ;
       box-sizing: border-box;
     }
   }
+  .second-part {
+  display: flex;
+    gap: 8px;
+    margin: 0 auto;
+}
   margin-bottom: 8px;
 }
