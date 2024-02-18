@@ -164,7 +164,7 @@ if(cluster.isMaster && isProduction){
         const dnow = new Date().getTime();
 
         const p = (req.query.page || 1)-1;
-        const match = owner ? { "owner": { "$eq": owner } } : {
+        let match = owner ? { "owner": { "$eq": owner } } : {
             "lang": {"$eq": 'fr'},
             "isReported": {"$ne": true},
             "startsAt": {"$gte": dnow},
@@ -175,19 +175,24 @@ if(cluster.isMaster && isProduction){
 ] */
         };
 
+        const regex = new RegExp(req.query.query);
+        if( req.query.query )
+            match = {...match, "$or": [
+                    {title: regex}, {desc: regex}, {address: regex},
+                    {city: regex}, {department: regex}, {region: regex}]};
+
         const agg = [];
-        if (req.query.query)
-            agg.push({
-                "$match": { ...match, "$text": { "$search": req.query.query } },
-            });
-        else if (req.query.lat && req.query.lng) {
+        if (req.query.lat && req.query.lng) {
             agg.push({
                 "$geoNear": {
                     near: {type: "Point", coordinates: [parseFloat(req.query.lat), parseFloat(req.query.lng)]},
                     distanceField: "distance",
                     spherical: true,
-                }
+                    query: match
+                },
+//                loc: {"$geoWithin": {"$centerSphere": [[parseFloat(req.query.lat), parseFloat(req.query.lng)], 5/6731]}}
             });
+        }else{
             agg.push({"$match": match});
         }
 
