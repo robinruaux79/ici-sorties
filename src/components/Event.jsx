@@ -131,6 +131,7 @@ function Event({data, children, full, onShowInfo, ...rest}) {
                     {<Suspense fallback={<div className="loc-spinner"></div>}>
                         <Map position={data.loc} zoom={14} draggable={false}/>
                     </Suspense>}
+                    {data.address}
                     <div className="actions">
                         <Button className={"btn"} onClick={() => {
                             window.open(
