@@ -28,6 +28,7 @@ function Events({children, disabled, className, loc, ...rest}) {
             },
             userDecisionTimeout: 5000,
             onSuccess: (data)=>{
+                setGeolocatedMode(true)
             }
         });
 
