@@ -162,10 +162,12 @@ if(cluster.isMaster && isProduction){
     app.get('/api/events/nearby', (req, res) => {
         const owner = req.query.owner;
         const dnow = new Date().getTime();
+
         const p = (req.query.page || 1)-1;
         const match = owner ? { "owner": { "$eq": owner } } : {
             "lang": {"$eq": 'fr'},
             "isReported": {"$ne": true},
+            "startsAt": {"$gte": dnow},
             "$or" : [{"endsAt": {"$gte":dnow}}, {"endsAt": {"$eq": null}}]
 //            "$or" : [{"startsAt": {"$lte":dnow}}, {"startsAt": {"$eq": null}}]
 /*            "$and": [
@@ -181,8 +183,14 @@ if(cluster.isMaster && isProduction){
                     spherical: true,
                 }});
         agg.push({ "$match": match});
-        agg.push({ "$sort": {"distance": 1, "startsAt": 1, "createdAt":-1}});
 
+        const srt = {};
+        if( req.query.sort === 'starts' )
+            srt.startsAt = 1;
+        else if( req.query.sort === 'loc')
+            srt.distance = 1;
+        srt.createdAt = -1;
+        agg.push({ "$sort": srt});
         eventsCollection.aggregate(agg).skip(p * eventsPerPage).limit(eventsPerPage).toArray().then((events) => {
             res.json(events.map(e => {
                 updateEventSummary(e, req.session.user || req.ip);

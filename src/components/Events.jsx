@@ -35,7 +35,8 @@ function Events({children, disabled, className, loc, ...rest}) {
     const queryFnInfinite = useCallback((page) => {
         abortController.abort();
         abortController = new AbortController();
-        return fetch('/api/events/nearby?page='+page+(geolocatedMode?'&lat='+(coords?.latitude)+'&lng='+(coords?.longitude): ''),
+        return fetch('/api/events/nearby?sort='+(geolocatedMode?'loc':'starts')+
+            '&page='+page+(coords?'&lat='+(coords?.latitude)+'&lng='+(coords?.longitude): ''),
             {
                 signal: abortController.signal
             })
