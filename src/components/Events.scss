@@ -4,3 +4,13 @@
   gap: 8px;
 }
 
+.events-header {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  .first-part {
+    flex: 1;
+  }
+  padding-right: 70px;
+  margin-bottom: 8px;
+}

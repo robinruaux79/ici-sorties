@@ -2,7 +2,7 @@ import {forwardRef, useEffect, useImperativeHandle, useRef, useState} from "reac
 
 import "./Spinner.scss"
 
-export const InfiniteScroll =  forwardRef(({spinner,count, refreshTime, children, renderItem, fetch, ...rest}, ref) => {
+export const InfiniteScroll =  forwardRef(({spinner,count, localKey, refreshTime, children, renderItem, fetch, ...rest}, ref) => {
     const anchorRef = useRef(null)
     const [page, setPage] = useState(1);
     const [items, setItems] = useState([]);
@@ -15,6 +15,14 @@ export const InfiniteScroll =  forwardRef(({spinner,count, refreshTime, children
         setEnded(false);
         setIsPending(false);
     };
+
+    useEffect(() => {
+        if( localKey ){
+            const p = items.length<= count ? Math.floor(items.length/count)+1 : Math.ceil(items.length / count)+1;
+            console.log("page key", p);
+            setPage(p);
+        }
+    }, [localKey])
 
     useImperativeHandle(ref, () => ({
         // Expose parent function to parent component
@@ -34,7 +42,12 @@ export const InfiniteScroll =  forwardRef(({spinner,count, refreshTime, children
                             setEnded(true);
                         }
                         setPage(p => p + 1);
-                        setItems(lastItems => [...lastItems, ...data]);
+                        setItems(lastItems => {
+                            const newItems = [...lastItems, ...data];
+                            if( localKey )
+                               localStorage.setItem(localKey, JSON.stringify(newItems));
+                            return newItems;
+                        });
                     }).finally(() => {
                         setIsPending(false);
                     });

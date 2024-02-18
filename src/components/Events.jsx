@@ -8,6 +8,7 @@ import {useCallback, useRef, useState} from "react";
 import {InfiniteScroll} from "./InfiniteScroll.jsx";
 import {eventsPerPage} from "../constants.js";
 import { useGeolocated } from "react-geolocated";
+import Button from "./Button.jsx";
 
 let abortController = new AbortController();
 
@@ -33,22 +34,33 @@ function Events({children, disabled, className, loc, ...rest}) {
     const queryFnInfinite = useCallback((page) => {
         abortController.abort();
         abortController = new AbortController();
-        return fetch('/api/events/nearby?page='+page+(coords || geolocatedMode?'&lat='+(coords?.latitude)+'&lng='+(coords?.longitude): ''),
+        return fetch('/api/events/nearby?page='+page+(geolocatedMode?'&lat='+(coords?.latitude)+'&lng='+(coords?.longitude): ''),
             {
                 signal: abortController.signal
             })
             .then(e => {
             return e.json()
         })
-    }, [coords]);
+    }, [coords, geolocatedMode]);
 
     return (<div className="events-wrapper">
-            {coords && <InfiniteScroll className={"content events"} spinner={<div className={"loc-spinner white"}></div>} count={eventsPerPage} ref={infiniteScrollRef} fetch={queryFnInfinite} renderItem={(e) => {
+            {coords && <div className="events-header">
+                <div className="first-part"></div>
+                <Button onClick={() => {
+                    setGeolocatedMode(false);
+                    infiniteScrollRef.current.reset();
+                }}>Par date</Button>
+                {<Button onClick={() => {
+                    setGeolocatedMode(true);
+                    infiniteScrollRef.current.reset();
+                }}>Par km</Button>}
+            </div>}
+            {coords && <InfiniteScroll localKey={'is'} className={"content events"} spinner={<div className={"loc-spinner white"}></div>} count={eventsPerPage} ref={infiniteScrollRef} fetch={queryFnInfinite} renderItem={(e) => {
             return <Event data={e} full={e.hash === currentEvent} onShowInfo={(event) => {
                 setCurrentEvent(event.hash);
             }} />
         }} />}
-        {!coords && <InfiniteScroll className={"content events"} spinner={<div className={"loc-spinner white"}></div>} count={eventsPerPage} ref={infiniteScrollRef} fetch={queryFnInfinite} renderItem={(e) => {
+        {!coords && <InfiniteScroll localKey={'is'} className={"content events"} spinner={<div className={"loc-spinner white"}></div>} count={eventsPerPage} ref={infiniteScrollRef} fetch={queryFnInfinite} renderItem={(e) => {
             return <Event data={e} full={e.hash === currentEvent} onShowInfo={(event) => {
                 setCurrentEvent(event.hash);
             }} />
