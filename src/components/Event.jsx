@@ -132,10 +132,10 @@ function Event({data, children, full, onShowInfo, ...rest}) {
                                 "https://www.google.com/maps/search/?api=1&query="+data.loc.lat+"%2C"+data.loc.lng+"&hl="+lang,
                                 '_blank' // <- This is what makes it open in a new window.
                             );
-                        }}>Calcul d'itinéraire</Button>
+                        }} title={t('itinerary_google', "Utilisez la navigation Google pour vous retrouver facilement.")}>Calcul d'itinéraire</Button>
                         <div className="share-view" onClick={() => setSocialNetworkVisible(!showSocialNetworks)} onMouseOver={() => setSocialNetworkVisible(true)}
                              onMouseOut={() => setSocialNetworkVisible(false)}>
-                            <Button title={t('share_on_social_networks', 'Partager sur les réseaux')}
+                            <Button title={t('share_on_social_networks', 'Partager sur les réseaux sciaux')}
                                     className={"btn btn-link"}><BiShare /></Button>
                         {showSocialNetworks && (
                             <div className="social-networks">
@@ -171,7 +171,7 @@ function Event({data, children, full, onShowInfo, ...rest}) {
                         </div>
                         {!hasReported && <LoginButton className={"btn"} onClick={() => {
                             handleReportEvent()
-                        }}><FaCircleExclamation /></LoginButton>}
+                        }} title={t("report_content","Signaler du contenu indésirable")}><FaCircleExclamation /></LoginButton>}
                         {hasReported && <>signalé!</>}
                     </div>
                     {children}
