@@ -175,7 +175,7 @@ if(cluster.isMaster && isProduction){
 ] */
         };
 
-        const regex = new RegExp(req.query.query);
+        const regex = new RegExp(req.query.query, 'ui');
         if( req.query.query )
             match = {...match, "$or": [
                     {title: regex}, {desc: regex}, {address: regex},
