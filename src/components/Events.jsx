@@ -63,8 +63,8 @@ function Events({children, disabled, className, resetTime, loc, ...rest}) {
                         infiniteScrollRef.current.reset();
                     }} />
                 </div>
-                <div className="second-part">
-                {coords && <><Button onClick={() => {
+                {coords && <div className="second-part">
+                <><Button onClick={() => {
                     setGeolocatedMode(false);
                     navigate('/events/nearby?sort=start');
                     infiniteScrollRef.current.reset();
@@ -72,8 +72,8 @@ function Events({children, disabled, className, resetTime, loc, ...rest}) {
                     setGeolocatedMode(true);
                     navigate('/events/nearby?sort=loc');
                     infiniteScrollRef.current.reset();
-                }}>Par distance</Button></>}
-                </div>
+                }}>Par distance</Button></>
+                </div>}
             </div>
             {coords && <InfiniteScroll refreshTime={resetTime} localKey={'is'} className={"events"} spinner={<div className={"loc-spinner white"}></div>} count={eventsPerPage} ref={infiniteScrollRef} fetch={queryFnInfinite} renderItem={(e) => {
             return <Event data={e} full={e.hash === currentEvent} onShowInfo={(event) => {
