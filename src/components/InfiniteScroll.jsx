@@ -21,6 +21,9 @@ export const InfiniteScroll =  forwardRef(({spinner,count, localKey, refreshTime
         reset,
         setItems: (items) => {
             setItems(items)
+        },
+        getItems: () => {
+            return items;
         }
     }));
 

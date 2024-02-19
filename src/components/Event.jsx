@@ -1,7 +1,7 @@
 
 import "./Event.scss"
 import {Trans, useTranslation} from "react-i18next";
-import {lazy, Suspense, useState} from "react";
+import {forwardRef, lazy, Suspense, useEffect, useRef, useState} from "react";
 import Button from "./Button.jsx";
 //import {Map} from "./Map.jsx";
 import {useNavigate} from "react-router-dom";
@@ -55,7 +55,7 @@ import {BiLink, BiShare} from "react-icons/bi";
 import {FaCircleExclamation, FaMagnifyingGlass} from "react-icons/fa6";
 import LoginButton from "./LoginButton.jsx";
 
-function Event({data, children, full, onShowInfo, ...rest}) {
+const Event = forwardRef(({data, children, current, full, onShowInfo, ...rest}, ref) => {
 
     const Map = lazy(() => import('./Map.jsx'));
 
@@ -114,7 +114,7 @@ function Event({data, children, full, onShowInfo, ...rest}) {
     const url = getUrlBase() + '/event/'+data.slug;
 
     return (
-        <div className={"bg-default event"} {...rest}>
+        <div ref={ref} className={"bg-default event"} {...rest}>
             <div className={"head"} onClick={() => onShowInfo(data)}>
                 <h3>{data.title}</h3>
                 <div className="start">{availableStart}</div>
@@ -129,7 +129,7 @@ function Event({data, children, full, onShowInfo, ...rest}) {
                     <div className="desc" dangerouslySetInnerHTML={{ __html: data.desc }}></div>
                     {availableEnd && <div className="end">Se termine le {availableEnd}</div>}
                     {<Suspense fallback={<div className="loc-spinner"></div>}>
-                        <Map position={data.loc} zoom={14} draggable={false}/>
+                        <Map position={data.loc} zoom={14} draggable={false}/>x
                     </Suspense>}
                     {data.address}
                     <div className="actions">
@@ -187,7 +187,7 @@ function Event({data, children, full, onShowInfo, ...rest}) {
             )}
         </div>
     )
-}
+});
 
 
 export default Event
