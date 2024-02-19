@@ -135,7 +135,7 @@ function Event({data, children, full, onShowInfo, ...rest}) {
                     <div className="actions">
                         <Button className={"btn"} onClick={() => {
                             window.open(
-                                "https://www.google.com/maps/search/?api=1&query="+data.loc.lat+"%2C"+data.loc.lng+"&hl="+lang,
+                                "https://www.google.com/maps/search/?api=1&query="+data.loc[0]+"%2C"+data.loc[1]+"&hl="+lang,
                                 '_blank' // <- This is what makes it open in a new window.
                             );
                         }} title={t('itinerary_google', "Utilisez la navigation Google pour vous retrouver facilement.")}>Calcul d'itinéraire</Button>
