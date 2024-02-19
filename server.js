@@ -197,10 +197,11 @@ if(cluster.isMaster && isProduction){
         }
 
         const srt = {};
-        if( req.query.sort === 'start' )
-            srt.startsAt = 1;
-        else if( req.query.sort === 'loc')
+        if( req.query.sort === 'loc' && typeof(req.query.lat) !== 'undefined' &&
+            typeof(req.query.lng) !== 'undefined')
             srt.distance = 1;
+        else
+            srt.startsAt = 1;
         srt.createdAt = -1;
         agg.push({ "$sort": srt});
         eventsCollection.aggregate(agg).skip(p * eventsPerPage).limit(eventsPerPage).toArray().then((events) => {
