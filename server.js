@@ -22,7 +22,7 @@ import {
     contactEmail,
     eventsPerPage,
     maxEventsPerUser,
-    maxReportsBeforeStateChange,
+    maxReportsBeforeStateChange, minQueryChars,
     openAgenda
 } from "./src/constants.js";
 import {createServer} from "vite";
@@ -175,14 +175,20 @@ if(cluster.isMaster && isProduction){
 ] */
         };
 
-        const regex = new RegExp(req.query.query, 'ui');
-        if( req.query.query )
-            match = {...match, "$or": [
+        if( req.query.query && req.query.query.length >= minQueryChars ) {
+            const regex = new RegExp(req.query.query, 'ui');
+            match = {
+                ...match, "$or": [
                     {title: regex}, {desc: regex}, {address: regex},
-                    {city: regex}, {department: regex}, {region: regex}]};
-
+                    {city: regex}, {department: regex}, {region: regex}]
+            };
+        }
         const agg = [];
-        if (req.query.lat && req.query.lng) {
+        const srt = {};
+        if (req.query.sort === 'loc' &&
+            typeof(req.query.lat) !== 'undefined' &&
+            typeof(req.query.lng) !== 'undefined') {
+            srt.distance = 1;
             agg.push({
                 "$geoNear": {
                     near: {type: "Point", coordinates: [parseFloat(req.query.lat), parseFloat(req.query.lng)]},
@@ -195,13 +201,7 @@ if(cluster.isMaster && isProduction){
         }else{
             agg.push({"$match": match});
         }
-
-        const srt = {};
-        if( req.query.sort === 'loc' && typeof(req.query.lat) !== 'undefined' &&
-            typeof(req.query.lng) !== 'undefined')
-            srt.distance = 1;
-        else
-            srt.startsAt = 1;
+        srt.startsAt = 1;
         srt.createdAt = -1;
         agg.push({ "$sort": srt});
         eventsCollection.aggregate(agg).skip(p * eventsPerPage).limit(eventsPerPage).toArray().then((events) => {

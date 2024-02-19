@@ -5,7 +5,7 @@ import Event from "./Event.jsx";
 import "./Spinner.scss"
 import {useCallback, useEffect, useRef, useState} from "react";
 import {InfiniteScroll} from "./InfiniteScroll.jsx";
-import {eventsPerPage} from "../constants.js";
+import {eventsPerPage, minQueryChars} from "../constants.js";
 import { useGeolocated } from "react-geolocated";
 import Button from "./Button.jsx";
 import {navigate} from "vite-plugin-ssr/client/router";
@@ -43,8 +43,11 @@ function Events({children, disabled, className, resetTime, loc, ...rest}) {
     const queryFnInfinite = useCallback((page) => {
         abortController.abort();
         abortController = new AbortController();
+        if( searchValue !== '' && searchValue.length < minQueryChars ){
+            return Promise.reject();
+        }
         return fetch('/api/events/nearby?'+
-            (searchValue!==''?'query='+encodeURIComponent(searchValue):'')+
+            (searchValue !== '' ?'query='+encodeURIComponent(searchValue):'')+
             '&sort='+(query.get("sort") || (geolocatedMode?'loc':'start'))+
             '&page='+page+(coords?'&lat='+(coords?.latitude)+'&lng='+(coords?.longitude): ''),
             {

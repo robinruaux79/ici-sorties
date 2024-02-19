@@ -1,6 +1,8 @@
 
 export const contactEmail = 'anonympins@gmail.com';
 
+export const minQueryChars = 3;
+
 export const eventsPerPage = 64;
 
 export const maxEventsPerUser = 3;
