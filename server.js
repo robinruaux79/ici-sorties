@@ -191,7 +191,7 @@ if(cluster.isMaster && isProduction){
                 srt.distance = 1;
             agg.push({
                 "$geoNear": {
-                    near: {type: "Point", coordinates: [parseFloat(req.query.lat), parseFloat(req.query.lng)]},
+                    near: {type: "Point", coordinates: [parseFloat(req.query.lng), parseFloat(req.query.lat)]},
                     distanceField: "distance",
                     spherical: true,
                     query: match
@@ -348,7 +348,7 @@ if(cluster.isMaster && isProduction){
         console.log(`Server started at http://localhost:${port}`)
     })
 
-    if (isProduction)
+    if (openAgenda.enabled)
         cronOpenAgenda(eventsCollection, openAgenda.timeout);
 }
 
