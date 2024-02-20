@@ -64,7 +64,8 @@ function App() {
                             <li><Button onClick={() => {
                                 navigate("/events/nearby?sort=loc", { replace : true});
                                 setResetTime(new Date().getTime());
-                            }} className="btn-big"><FaLocationDot />Près d&apos;ici</Button></li>
+                            }} className="btn-big"><FaLocationDot />Sorties
+                            </Button></li>
                             <li><NavLink to={"/event/new"} className="btn btn-big">
                                 <FaNoteSticky />Publier un événement</NavLink></li>
                         </ul>
