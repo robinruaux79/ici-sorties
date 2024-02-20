@@ -129,7 +129,7 @@ const Event = forwardRef(({data, children, current, full, onShowInfo, ...rest}, 
                     <div className="desc" dangerouslySetInnerHTML={{ __html: data.desc }}></div>
                     {availableEnd && <div className="end">Se termine le {availableEnd}</div>}
                     {<Suspense fallback={<div className="loc-spinner"></div>}>
-                        <Map position={data.loc} zoom={14} draggable={false}/>x
+                        <Map position={data.loc} zoom={14} draggable={false}/>
                     </Suspense>}
                     {data.address}
                     <div className="actions">
