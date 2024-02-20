@@ -83,17 +83,17 @@ function Events({children, disabled, className, resetTime, loc, ...rest}) {
             {coords && <InfiniteScroll refreshTime={resetTime} localKey={'is'} className={"events"} spinner={<div className={"loc-spinner white"}></div>} count={eventsPerPage} ref={infiniteScrollRef} fetch={queryFnInfinite} renderItem={(e) => {
                 const getRef = (el) => itemsRefs.current[e.hash] = el;
                 return <Event ref={getRef} data={e} full={e.hash === currentEvent} onShowInfo={(event) => {
-                setCurrentEvent(() => {
-                    return event.hash;
-                });
-                itemsRefs.current[event.hash].scrollIntoView();
-            }} />
-        }} />}
-        {!coords && <InfiniteScroll refreshTime={resetTime} localKey={'is'} className={"events"} spinner={<div className={"loc-spinner white"}></div>} count={eventsPerPage} ref={infiniteScrollRef} fetch={queryFnInfinite} renderItem={(e) => {
-            return <Event data={e} full={e.hash === currentEvent} onShowInfo={(event) => {
-                setCurrentEvent(event.hash);
-            }} />
-        }} />}
+                    setCurrentEvent(event.hash);
+                    itemsRefs.current[event.hash].scrollIntoView();
+                }} />
+            }} />}
+            {!coords && <InfiniteScroll refreshTime={resetTime} localKey={'is'} className={"events"} spinner={<div className={"loc-spinner white"}></div>} count={eventsPerPage} ref={infiniteScrollRef} fetch={queryFnInfinite} renderItem={(e) => {
+                const getRef = (el) => itemsRefs.current[e.hash] = el;
+                return <Event ref={getRef} data={e} full={e.hash === currentEvent} onShowInfo={(event) => {
+                    setCurrentEvent(event.hash);
+                    itemsRefs.current[event.hash].scrollIntoView();
+                }} />
+            }} />}
         </div>
     )
 }
