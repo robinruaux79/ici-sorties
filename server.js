@@ -185,10 +185,10 @@ if(cluster.isMaster && isProduction){
         }
         const agg = [];
         const srt = {};
-        if (req.query.sort === 'loc' &&
-            typeof(req.query.lat) !== 'undefined' &&
+        if (typeof(req.query.lat) !== 'undefined' &&
             typeof(req.query.lng) !== 'undefined') {
-            srt.distance = 1;
+            if( req.query.sort === 'loc')
+                srt.distance = 1;
             agg.push({
                 "$geoNear": {
                     near: {type: "Point", coordinates: [parseFloat(req.query.lat), parseFloat(req.query.lng)]},
