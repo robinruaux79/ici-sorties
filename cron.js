@@ -29,7 +29,7 @@ export const cronOpenAgenda = (eventsCollection, timeout) => {
                     return {
                         title: e.title.fr,
                         desc: e.html.fr,
-                        loc: e.latitude && e.longitude ? [e.latitude, e.longitude] : undefined,
+                        loc: e.latitude && e.longitude ? [e.longitude, e.latitude] : undefined,
                         hash: sha256(e.title?.fr && e.description?.fr ? e.title.fr + e.description.fr : new Date().getTime()+''+rand(1,10000)),
                         createdAt: new Date(e.createdAt).getTime(),
                         lang: 'fr',

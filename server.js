@@ -296,7 +296,7 @@ if(cluster.isMaster && isProduction){
                 typeof(event.desc) === 'string' && event.desc.length <= 512 &&
                 typeof(event.loc) === 'object' && typeof(event.loc.lat) === 'number' && typeof(event.loc.lng) === 'number' ) {
 
-                event.loc = [event.loc.lat, event.loc.lng];
+                event.loc = [event.loc.lng, event.loc.lat];
 
                 const element = await eventsCollection.insertOne(event);
                 event._id = element.insertedId;

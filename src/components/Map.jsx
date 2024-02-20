@@ -30,7 +30,7 @@ const Map = ({position, draggable, zoom, onPositionChanged}) => {
 
         document.getElementById('map').innerHTML = "<div id='map-inner' style='position: absolute; top: 0; left:0;width: 100%; height: 100%;'></div>";
         map = new L.Map('map-inner', { scrollWheelZoom: false });
-        const latLng = new L.LatLng(center[0] || center.lat, center[1] || center.lng);
+        const latLng = new L.LatLng(center[1] || center.lat, center[0] || center.lng);
         map.setView(latLng, zoom);
         map.addLayer(osmLayer);
 
