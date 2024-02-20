@@ -44,6 +44,8 @@ export const cronOpenAgenda = (eventsCollection, timeout) => {
                     };
                 }).forEach((e) => {
                     (async () => {
+                        if(e.loc === undefined)
+                            return;
                         await eventsCollection.replaceOne({"slug": e.slug}, e,
                         { upsert: true });
                     })();
