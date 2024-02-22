@@ -1,6 +1,8 @@
 import fs from 'node:fs'
 import express from 'express'
+import ExpressSitemap from 'express-sitemap';
 import {MongoClient} from 'mongodb'
+import { RateLimiterMongo } from 'rate-limiter-flexible';
 import {OAuth2Client} from 'google-auth-library';
 import nodemailer from "nodemailer";
 import bodyParser from "body-parser";
@@ -23,7 +25,7 @@ import {
     eventsPerPage,
     maxEventsPerUser,
     maxReportsBeforeStateChange, minQueryChars,
-    openAgenda
+    openAgenda, pointsPerUserPerSecond
 } from "./src/constants.js";
 import {createServer} from "vite";
 import http from "http";
@@ -80,6 +82,7 @@ if(cluster.isMaster && isProduction){
         scope: 'https://www.googleapis.com/auth/userinfo.profile',
     });
 
+
     // Connection URL
     const dbUrl = process.env.MONGODB_URL || 'mongodb://127.0.0.1:27017';
     const client = new MongoClient(dbUrl);
@@ -91,6 +94,25 @@ if(cluster.isMaster && isProduction){
     const db = client.db(dbName);
     const eventsCollection = db.collection("events");
 
+    const opts = {
+        storeClient: Promise.resolve(client),
+        dbName: dbName,
+        points: isProduction ? pointsPerUserPerSecond : 250, // Number of points
+        duration: 1, // Per second(s)
+    };
+
+    const rateLimiterMongo = new RateLimiterMongo(opts);
+
+    const rateLimiterMiddleware = (req, res, next) => {
+        rateLimiterMongo.consume(req.sessionID || req.ip)
+            .then(() => {
+                next();
+            })
+            .catch(() => {
+                res.status(429).send('Too Many Requests');
+            });
+    };
+
     // Use connect method to connect to the server
     await client.connect();
 
@@ -101,10 +123,23 @@ if(cluster.isMaster && isProduction){
     app.use(expressSession({
         store: MongoStore.create({ mongoUrl: dbUrl })
     }));
+    app.use(rateLimiterMiddleware);
 
     const csrfProtection = csrfDSC();
     app.use(csrfProtection)
     app.disable('etag');
+
+    const sitemap = ExpressSitemap({
+        map: {
+            '/': ['get'],
+            '/events/nearby': ['get'],
+            '/events/nearby?sort=start': ['get'],
+            '/legals': ['get'],
+            '/credits': ['get'],
+        },
+        route: [],
+        generate: app
+    })
 
     const templateHtml = isProduction
         ? fs.readFileSync('./dist/client/index.html', {encoding:'utf-8'})
@@ -130,6 +165,11 @@ if(cluster.isMaster && isProduction){
         app.use(compression())
         app.use(base, sirv('./dist/client', {extensions: []}))
     }
+
+    app.get('/sitemap.xml', function(req, res) {
+        res.header('Content-Type', 'application/xml');
+        sitemap.XMLtoWeb(res);
+    });
 
 
     app.get('/oauth/google', (req,res) => {
