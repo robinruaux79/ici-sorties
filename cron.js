@@ -34,7 +34,7 @@ export const cronFestivals = (eventsCollection, timeout) => {
                 d.results.map(e => {
                     return {
                         title: e.nom_du_festival,
-                        desc: "<ul><li>Site internet : <a href='mailto:"+e.site_internet_du_festival+"'>"+e.site_internet_du_festival+"</a></li>" +
+                        desc: "<ul><li>Site internet : <a target='_blank' href='"+e.site_internet_du_festival+"'>"+e.site_internet_du_festival+"</a></li>" +
                             "<li>Email : <a href='mailto:"+e.adresse_email+"'>"+e.adresse_e_mail+"</a></li></ul>",
                         loc: e.geocodage_xy ? [e.geocodage_xy.lon, e.geocodage_xy.lat] : undefined,
                         hash: sha256(e.title?.fr && e.description?.fr ? e.title.fr + e.description.fr : new Date().getTime() + '' + rand(1, 10000)),
