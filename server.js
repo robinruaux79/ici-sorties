@@ -25,11 +25,12 @@ import {
     eventsPerPage,
     maxEventsPerUser,
     maxReportsBeforeStateChange, minQueryChars,
-    cronOptions, pointsPerUserPerSecond
+    cronOptions, pointsPerUserPerSecond, isHttps
 } from "./src/constants.js";
 import {createServer} from "vite";
 import http from "http";
 import {cronFestivals, cronOpenAgenda, cronParis} from "./cron.js";
+import https from "https";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,9 +57,10 @@ const readJSON = async (path) => {
 
 // Constants
 const isProduction = process.env.NODE_ENV === 'production'
-const domain = process.env.DOMAIN || 'http://localhost';
+const domain = process.env.DOMAIN || 'localhost';
 const port = process.env.PORT || 5173
 const base = process.env.BASE || '/'
+const baseUrl = (isHttps ? "https://":"http://") + domain;
 
 // check if the process is the master process
 if(cluster.isMaster && isProduction){
@@ -130,6 +132,9 @@ if(cluster.isMaster && isProduction){
     app.disable('etag');
 
     const sitemap = ExpressSitemap({
+        url: domain,
+        http: isHttps ? 'https' : 'http',
+        port: isHttps ? 443 : 80,
         map: {
             '/': ['get'],
             '/events/nearby': ['get'],
@@ -391,10 +396,7 @@ if(cluster.isMaster && isProduction){
 
     const port = process.env?.PORT || 80;
 
-    // Start http server
-    app.listen(port, () => {
-        console.log(`Server started at http://localhost:${port}`)
-    })
+    http.createServer(app).listen(port);
 
     if (cronOptions.enabled ){
         cronOpenAgenda(eventsCollection, cronOptions.timeout);

@@ -1,3 +1,4 @@
+export const isHttps = true;
 
 export const contactEmail = 'anonympins@gmail.com';
 
