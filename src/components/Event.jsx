@@ -117,7 +117,7 @@ const Event = forwardRef(({data, children, current, full, onShowInfo, ...rest}, 
         <div ref={ref} className={"bg-default event"} {...rest}>
             <div className={"head"} onClick={() => onShowInfo(data)}>
                 <h3>{data.title}</h3>
-                <div className="start">{availableStart}</div>
+                <div className="start">{data.period ? 'Festival ' + data.period : '' || availableStart}</div>
                 <span className={"dist"}>
                     {data.city || data.department || data.region}
                     {data.distance && <span>{` à ${Math.round(data.distance/1000)} km`}</span>}

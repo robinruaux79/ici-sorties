@@ -11,7 +11,7 @@ export const maxReportsBeforeStateChange = 3;
 
 export const pointsPerUserPerSecond = 8;
 
-export const openAgenda = {
+export const cronOptions = {
     maxPages : 31,
     timeout: 30000,
     enabled: true

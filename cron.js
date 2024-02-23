@@ -1,9 +1,66 @@
-import {openAgenda} from "./src/constants.js";
+import {cronOptions} from "./src/constants.js";
 import https from "https";
 import sha256 from "sha256";
 import slug from "slug";
 import {rand} from "./src/random.js";
 
+export const cronFestivals = (eventsCollection, timeout) => {
+
+    const nbPerPage = 100;
+
+    let count = null;
+    let i = 0;
+    const int = setInterval(() => {
+        if( i >= (count ? count/nbPerPage : 1) ) {
+            i = 0;
+            count = null;
+            return;
+        }
+        getFestivalsPage(i);
+        ++i;
+    }, timeout);
+
+    const getFestivalsPage = (page) => {
+        const offset = nbPerPage*page;
+        https.get("https://data.culture.gouv.fr/api/explore/v2.1/catalog/datasets/festivals-global-festivals-_-pl/records?limit=" + nbPerPage + "&offset=" + offset + "&lang=fr", (resp) => {
+            let data = '';
+            resp.on('data', (chunk) => {
+                data += chunk;
+            });
+            resp.on('end', async () => {
+                console.log(data);
+                const d = JSON.parse(data);
+                count = d.total_count;
+                d.results.map(e => {
+                    return {
+                        title: e.nom_du_festival,
+                        desc: "<ul><li>Site internet : <a href='mailto:"+e.site_internet_du_festival+"'>"+e.site_internet_du_festival+"</a></li>" +
+                            "<li>Email : <a href='mailto:"+e.adresse_email+"'>"+e.adresse_e_mail+"</a></li></ul>",
+                        loc: e.geocodage_xy ? [e.geocodage_xy.lon, e.geocodage_xy.lat] : undefined,
+                        hash: sha256(e.title?.fr && e.description?.fr ? e.title.fr + e.description.fr : new Date().getTime() + '' + rand(1, 10000)),
+                        lang: 'fr',
+                        address: e.adresse_postale  ,
+                        postalCode: e.code_insee_commune,
+                        city: e.commune_principale_de_deroulement,
+                        department: e.departement_principal_de_deroulement,
+                        region: e.region_principale_de_deroulement,
+                        slug: slug(e.nom_du_festival+'-'+e.commune_principale_de_deroulement),
+                        period: e.periode_principale_de_deroulement_du_festival
+                    };
+                }).forEach((e) => {
+                    console.log(e);
+                    (async () => {
+                        if (e.loc === undefined)
+                            return;
+                        await eventsCollection.replaceOne({"slug": e.slug}, e,
+                            {upsert: true});
+                    })();
+                });
+
+            });
+        });
+    };
+}
 export const cronParis = (eventsCollection, timeout) => {
 
     const nbPerPage = 100;
@@ -47,8 +104,7 @@ export const cronParis = (eventsCollection, timeout) => {
                         endsAt: new Date(e.date_end).getTime()
                     };
                 }).forEach((e) => {
-                    console.log(e);
-                    (async () => {
+                   (async () => {
                         if (e.loc === undefined)
                             return;
                         await eventsCollection.replaceOne({"slug": e.slug}, e,
@@ -71,7 +127,7 @@ export const cronOpenAgenda = (eventsCollection, timeout) => {
             }
             getEvents(agendas[i].uid);
             ++i;
-        }, openAgenda.timeout);
+        }, cronOptions.timeout);
     }
     const getEvents = (uid) => {
         https.get("https://openagenda.com/agendas/"+uid+"/events.json?lang=fr", (resp) => {
@@ -118,7 +174,7 @@ export const cronOpenAgenda = (eventsCollection, timeout) => {
             resp.on('end', () => {
                 const events = JSON.parse(data);
                 openAgendas(events?.agendas);
-                if( page > openAgenda.maxPages )
+                if( page > cronOptions.maxPages )
                     setTimeout(() => openNewPage(1), timeout )
                 else
                     setTimeout(() => openNewPage(page + 1), timeout )

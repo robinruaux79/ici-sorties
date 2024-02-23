@@ -25,11 +25,11 @@ import {
     eventsPerPage,
     maxEventsPerUser,
     maxReportsBeforeStateChange, minQueryChars,
-    openAgenda, pointsPerUserPerSecond
+    cronOptions, pointsPerUserPerSecond
 } from "./src/constants.js";
 import {createServer} from "vite";
 import http from "http";
-import {cronOpenAgenda, cronParis} from "./cron.js";
+import {cronFestivals, cronOpenAgenda, cronParis} from "./cron.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -207,8 +207,14 @@ if(cluster.isMaster && isProduction){
         let match = owner ? { "owner": { "$eq": owner } } : {
             "lang": {"$eq": 'fr'},
             "isReported": {"$ne": true},
-            "startsAt": {"$gte": dnow},
-            "$or" : [{"endsAt": {"$gte":dnow}}, {"endsAt": {"$eq": null}}]
+            "$and": [{
+                "$or" : [{
+                    "period": { "$ne": null }
+                }, {
+                    "startsAt": {"$gte": dnow},
+                    "$or": [{"endsAt": {"$gte": dnow}}, {"endsAt": {"$eq": null}}]
+                }]
+            }],
 //            "$or" : [{"startsAt": {"$lte":dnow}}, {"startsAt": {"$eq": null}}]
 /*            "$and": [
                 {,
@@ -218,10 +224,11 @@ if(cluster.isMaster && isProduction){
         if( req.query.query && req.query.query.length >= minQueryChars ) {
             const regex = new RegExp(req.query.query, 'ui');
             match = {
-                ...match, "$or": [
-                    {title: regex}, {desc: regex}, {address: regex},
-                    {city: regex}, {department: regex}, {region: regex}]
+                ...match, "$and": [...match["$and"], { "$or": [
+                    {city: regex}, {title: regex}, {desc: regex}, {address: regex},
+                    {department: regex}, {region: regex}] }]
             };
+            console.log(match);
         }
         const agg = [];
         const srt = {};
@@ -241,6 +248,7 @@ if(cluster.isMaster && isProduction){
         }else{
             agg.push({"$match": match});
         }
+        srt.period = 1;
         srt.startsAt = 1;
         srt.createdAt = -1;
         agg.push({ "$sort": srt});
@@ -388,9 +396,10 @@ if(cluster.isMaster && isProduction){
         console.log(`Server started at http://localhost:${port}`)
     })
 
-    if (openAgenda.enabled){
-        cronOpenAgenda(eventsCollection, openAgenda.timeout);
-        cronParis(eventsCollection, openAgenda.timeout);
+    if (cronOptions.enabled ){
+        cronOpenAgenda(eventsCollection, cronOptions.timeout);
+        cronParis(eventsCollection, cronOptions.timeout);
+        cronFestivals(eventsCollection, cronOptions.timeout);
     }
 }
 
