@@ -390,7 +390,7 @@ if(cluster.isMaster && isProduction){
 
     if (openAgenda.enabled){
         cronOpenAgenda(eventsCollection, openAgenda.timeout);
-        cronParis(eventsCollection, openAgenda.timeout, 28);
+        cronParis(eventsCollection, openAgenda.timeout);
     }
 }
 

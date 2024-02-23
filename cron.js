@@ -4,12 +4,16 @@ import sha256 from "sha256";
 import slug from "slug";
 import {rand} from "./src/random.js";
 
-export const cronParis = (eventsCollection, timeout, maxPages) => {
+export const cronParis = (eventsCollection, timeout) => {
 
+    const nbPerPage = 100;
+
+    let count = null;
     let i = 0;
     const int = setInterval(() => {
-        if( i >= maxPages ) {
-            clearInterval(int);
+        if( i >= (count ? count/nbPerPage : 1) ) {
+            i = 0;
+            count = null;
             return;
         }
         getParisPage(i);
@@ -17,21 +21,20 @@ export const cronParis = (eventsCollection, timeout, maxPages) => {
     }, timeout);
 
     const getParisPage = (page) => {
-        const limit = 100;
-        const offset = limit*page;
-
-        https.get("https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/que-faire-a-paris-/records?order_by=date_start%20ASC&limit=" + limit + "&offset=" + offset + "&lang=fr", (resp) => {
+        const offset = nbPerPage*page;
+        https.get("https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/que-faire-a-paris-/records?order_by=date_start%20ASC&limit=" + nbPerPage + "&offset=" + offset + "&lang=fr", (resp) => {
             let data = '';
             resp.on('data', (chunk) => {
                 data += chunk;
             });
             resp.on('end', async () => {
                 const d = JSON.parse(data);
+                count = d.total_count;
                 d.results.map(e => {
                     return {
                         title: e.title,
                         desc: e.description + (e.price_detail || ''),
-                        loc: e.lat_lon ? [e.lat_lon.lat, e.lat_lon.lon] : undefined,
+                        loc: e.lat_lon ? [e.lat_lon.lon, e.lat_lon.lat] : undefined,
                         hash: sha256(e.title?.fr && e.description?.fr ? e.title.fr + e.description.fr : new Date().getTime() + '' + rand(1, 10000)),
                         lang: 'fr',
                         address: e.address_street,
@@ -44,6 +47,7 @@ export const cronParis = (eventsCollection, timeout, maxPages) => {
                         endsAt: new Date(e.date_end).getTime()
                     };
                 }).forEach((e) => {
+                    console.log(e);
                     (async () => {
                         if (e.loc === undefined)
                             return;
