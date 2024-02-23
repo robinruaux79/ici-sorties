@@ -4,6 +4,58 @@ import sha256 from "sha256";
 import slug from "slug";
 import {rand} from "./src/random.js";
 
+export const cronParis = (eventsCollection, timeout, maxPages) => {
+
+    let i = 0;
+    const int = setInterval(() => {
+        if( i >= maxPages ) {
+            clearInterval(int);
+            return;
+        }
+        getParisPage(i);
+        ++i;
+    }, timeout);
+
+    const getParisPage = (page) => {
+        const limit = 100;
+        const offset = limit*page;
+
+        https.get("https://opendata.paris.fr/api/explore/v2.1/catalog/datasets/que-faire-a-paris-/records?order_by=date_start%20ASC&limit=" + limit + "&offset=" + offset + "&lang=fr", (resp) => {
+            let data = '';
+            resp.on('data', (chunk) => {
+                data += chunk;
+            });
+            resp.on('end', async () => {
+                const d = JSON.parse(data);
+                d.results.map(e => {
+                    return {
+                        title: e.title,
+                        desc: e.description + (e.price_detail || ''),
+                        loc: e.lat_lon ? [e.lat_lon.lat, e.lat_lon.lon] : undefined,
+                        hash: sha256(e.title?.fr && e.description?.fr ? e.title.fr + e.description.fr : new Date().getTime() + '' + rand(1, 10000)),
+                        lang: 'fr',
+                        address: e.address_street,
+                        postalCode: e.address_zipcode,
+                        city: e.address_city,
+                        department: '',
+                        region: 'Île-de-France',
+                        slug: slug(e.title),
+                        startsAt: new Date(e.date_start).getTime(),
+                        endsAt: new Date(e.date_end).getTime()
+                    };
+                }).forEach((e) => {
+                    (async () => {
+                        if (e.loc === undefined)
+                            return;
+                        await eventsCollection.replaceOne({"slug": e.slug}, e,
+                            {upsert: true});
+                    })();
+                });
+
+            });
+        });
+    };
+}
 export const cronOpenAgenda = (eventsCollection, timeout) => {
 
     const openAgendas = (agendas) => {

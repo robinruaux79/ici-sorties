@@ -29,7 +29,7 @@ import {
 } from "./src/constants.js";
 import {createServer} from "vite";
 import http from "http";
-import {cronOpenAgenda} from "./cron.js";
+import {cronOpenAgenda, cronParis} from "./cron.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -388,8 +388,10 @@ if(cluster.isMaster && isProduction){
         console.log(`Server started at http://localhost:${port}`)
     })
 
-    if (openAgenda.enabled)
+    if (openAgenda.enabled){
         cronOpenAgenda(eventsCollection, openAgenda.timeout);
+        cronParis(eventsCollection, openAgenda.timeout, 28);
+    }
 }
 
 const updateEventSummary = (event, user) => {
