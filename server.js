@@ -87,7 +87,7 @@ if(cluster.isMaster && isProduction){
 
     // Connection URL
     const dbUrl = process.env.MONGODB_URL || 'mongodb://127.0.0.1:27017';
-    const client = new MongoClient(dbUrl, { maxPoolSize: 40 });
+    const client = new MongoClient(dbUrl, { maxPoolSize: 20 });
 
     // Database Name
     const dbName = 'ici';
@@ -134,7 +134,6 @@ if(cluster.isMaster && isProduction){
     const sitemap = ExpressSitemap({
         url: domain,
         http: isHttps ? 'https' : 'http',
-        port: isHttps ? 443 : 80,
         map: {
             '/': ['get'],
             '/events/nearby': ['get'],
