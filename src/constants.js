@@ -14,6 +14,6 @@ export const pointsPerUserPerSecond = 8;
 
 export const cronOptions = {
     maxPages : 31,
-    timeout: 30000,
+    timeout: 40000,
     enabled: true
 }

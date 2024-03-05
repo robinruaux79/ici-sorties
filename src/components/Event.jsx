@@ -112,12 +112,19 @@ const Event = forwardRef(({data, children, current, full, onShowInfo, ...rest}, 
     }
 
     const url = getUrlBase() + '/event/'+data.slug;
-
+    let period = '';
+    if( data.season === 1 ){
+        period = 'Avant-saison';
+    }else if( data.season === 2 ){
+        period = 'Eté';
+    }else if( data.season === 3 ) {
+        period = 'Après-saison';
+    }
     return (
         <div ref={ref} className={"bg-default event"} {...rest}>
             <div className={"head"} onClick={() => onShowInfo(data)}>
                 <h3>{data.title}</h3>
-                <div className="start">{data.period ? 'Festival ' + data.period : '' || availableStart}</div>
+                <div className="start">{period ? 'Festival ' + period : '' || availableStart}</div>
                 <span className={"dist"}>
                     {data.city || data.department || data.region}
                     {data.distance && <span>{` à ${Math.round(data.distance/1000)} km`}</span>}

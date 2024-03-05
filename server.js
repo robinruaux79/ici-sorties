@@ -31,7 +31,7 @@ import {createServer} from "vite";
 import http from "http";
 import {cronFestivals, cronOpenAgenda, cronParis} from "./cron.js";
 import https from "https";
-
+import util from "util";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -208,21 +208,73 @@ if(cluster.isMaster && isProduction){
         const dnow = new Date().getTime();
 
         const p = (req.query.page || 1)-1;
-        let match = owner ? { "owner": { "$eq": owner } } : {
-            "lang": {"$eq": 'fr'},
-            "isReported": {"$ne": true},
-            "$and": [{
+        let wheres = [];
+        if( req.query.start || req.query.end ) {
+
+            const now = new Date();
+            /*const start = new Date();
+            if( req.query.start ){
+                start.setTime(parseInt(req.query.start, 10) || 0);
+            }else{
+                start.setMonth(0);
+                start.setDate(1);
+            }
+            const end = new Date();
+            if( req.query.end)
+                end.setTime(parseInt(req.query.end, 10));
+            else{
+                end.setMonth(11);
+                end.setDate(31);
+            }
+            const saison = new Date();
+            saison.setMonth(5);
+            saison.setDate(21);
+            saison.setFullYear(now.getFullYear())
+            const apresSaison = new Date();
+            apresSaison.setMonth(8);
+            apresSaison.setDate(5);
+            apresSaison.setFullYear(now.getFullYear());
+            const as =
+                ((start.getMonth() === saison.getMonth() && start.getDate() < saison.getDate()) || start.getMonth() < saison.getMonth());
+            const s = !as && ((start.getMonth() === apresSaison.getMonth() && start.getDate() <= apresSaison.getDate()) || start.getMonth() < apresSaison.getMonth());
+            const sa = !as && !s;
+            const seasons = [{"season": { "$eq": 0 }}];
+            if( as )
+                seasons.push({"season": {"$eq": 1}})
+            if( s )
+                seasons.push({"season": {"$eq": 2}})
+            if( sa )
+                seasons.push({"season": {"$eq": 3}})*/
+            const startEnd = [];
+            if( req.query.start)
+                startEnd.push({"$or": [{"startsAt": { "$exists" : false}},{"startsAt": {"$gte": parseInt(req.query.start, 10)}}]});
+            if( req.query.end )
+                startEnd.push({"$or": [{"endsAt": { "$exists" : false}},{"endsAt": {"$lte": parseInt(req.query.end, 10)}}]});
+            wheres.push({
+                    "$and": [
+                        {"season": {"$eq": 0}},
+                        ...startEnd
+                    ]
+            });
+            console.log(util.inspect(wheres, false, 10));
+        }
+        else {
+            wheres.push({
                 "$or" : [{
-                    "period": { "$ne": null }
-                }, {
                     "startsAt": {"$gte": dnow},
                     "$or": [{"endsAt": {"$gte": dnow}}, {"endsAt": {"$eq": null}}]
                 }]
-            }],
-//            "$or" : [{"startsAt": {"$lte":dnow}}, {"startsAt": {"$eq": null}}]
-/*            "$and": [
-                {,
-] */
+            });
+        }
+        let match = {};
+        if(owner)
+            match = { "owner": { "$eq": owner } };
+        else {
+            match = {
+                "lang": {"$eq": 'fr'},
+                "isReported": {"$ne": true},
+                "$and": wheres,
+            };
         };
 
         if( req.query.query && req.query.query.length >= minQueryChars ) {
@@ -238,8 +290,9 @@ if(cluster.isMaster && isProduction){
         const srt = {};
         if (typeof(req.query.lat) !== 'undefined' &&
             typeof(req.query.lng) !== 'undefined') {
-            if( req.query.sort === 'loc')
+            if( req.query.sort === 'loc' ){
                 srt.distance = 1;
+            }
             agg.push({
                 "$geoNear": {
                     near: {type: "Point", coordinates: [parseFloat(req.query.lng), parseFloat(req.query.lat)]},
@@ -252,7 +305,6 @@ if(cluster.isMaster && isProduction){
         }else{
             agg.push({"$match": match});
         }
-        srt.period = 1;
         srt.startsAt = 1;
         srt.createdAt = -1;
         agg.push({ "$sort": srt});
@@ -349,6 +401,7 @@ if(cluster.isMaster && isProduction){
                 typeof(event.loc) === 'object' && typeof(event.loc.lat) === 'number' && typeof(event.loc.lng) === 'number' ) {
 
                 event.loc = [event.loc.lng, event.loc.lat];
+                event.season = 0;
 
                 const element = await eventsCollection.insertOne(event);
                 event._id = element.insertedId;

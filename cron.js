@@ -28,14 +28,23 @@ export const cronFestivals = (eventsCollection, timeout) => {
                 data += chunk;
             });
             resp.on('end', async () => {
-                console.log(data);
                 const d = JSON.parse(data);
                 count = d.total_count;
                 d.results.map(e => {
+                    const p = e.periode_principale_de_deroulement_du_festival;
+                    if( p === 'Saison (21 juin - 5 septembre)'){
+                        e.season = 1;
+                    }else if( p === 'Après-saison (6 septembre - 31 décembre)'){
+                        e.season = 2;
+                    }else{
+                        e.season = 3;
+                    }
                     return {
                         title: e.nom_du_festival,
-                        desc: "<ul><li>Site internet : <a target='_blank' href='"+e.site_internet_du_festival+"'>"+e.site_internet_du_festival+"</a></li>" +
-                            "<li>Email : <a href='mailto:"+e.adresse_email+"'>"+e.adresse_e_mail+"</a></li></ul>",
+                        desc: "<ul>"
+                            +(e.site_internet_du_festival ? "<li>Site internet : <a target='_blank' href='"+e.site_internet_du_festival+"'>"+e.site_internet_du_festival+"</a></li>" : "") +
+                        (e.adresse_e_mail ? "<li>Email : <a href='mailto:"+e.adresse_e_mail+"'>"+e.adresse_e_mail+"</a></li>" : "")+
+                    "</ul>",
                         loc: e.geocodage_xy ? [e.geocodage_xy.lon, e.geocodage_xy.lat] : undefined,
                         hash: sha256(e.title?.fr && e.description?.fr ? e.title.fr + e.description.fr : new Date().getTime() + '' + rand(1, 10000)),
                         lang: 'fr',
@@ -45,10 +54,9 @@ export const cronFestivals = (eventsCollection, timeout) => {
                         department: e.departement_principal_de_deroulement,
                         region: e.region_principale_de_deroulement,
                         slug: slug(e.nom_du_festival+'-'+e.commune_principale_de_deroulement),
-                        period: e.periode_principale_de_deroulement_du_festival
+                        season: e.season
                     };
                 }).forEach((e) => {
-                    console.log(e);
                     (async () => {
                         if (e.loc === undefined)
                             return;
@@ -88,6 +96,8 @@ export const cronParis = (eventsCollection, timeout) => {
                 const d = JSON.parse(data);
                 count = d.total_count;
                 d.results.map(e => {
+                    const start = new Date(e.date_start).getTime();
+                    const end = new Date(e.date_end).getTime()
                     return {
                         title: e.title,
                         desc: e.description + (e.price_detail || ''),
@@ -100,8 +110,9 @@ export const cronParis = (eventsCollection, timeout) => {
                         department: '',
                         region: 'Île-de-France',
                         slug: slug(e.title),
-                        startsAt: new Date(e.date_start).getTime(),
-                        endsAt: new Date(e.date_end).getTime()
+                        startsAt: start > 0 ? start: undefined,
+                        endsAt: end > 0 ? end : undefined,
+                        season: 0
                     };
                 }).forEach((e) => {
                    (async () => {
@@ -138,6 +149,8 @@ export const cronOpenAgenda = (eventsCollection, timeout) => {
             resp.on('end', async () => {
                 const d = JSON.parse(data);
                 d.events.map(e => {
+                    const start = new Date(e.firstDate + ' ' + e.firstTimeStart).getTime();
+                    const end = new Date(e.lastDate + ' ' + e.lastTimeStart).getTime();
                     return {
                         title: e.title.fr,
                         desc: e.html.fr,
@@ -151,8 +164,9 @@ export const cronOpenAgenda = (eventsCollection, timeout) => {
                         department: e.department,
                         region: e.region,
                         slug: e.slug || slug(e.title.fr),
-                        startsAt: new Date(e.firstDate + ' ' + e.firstTimeStart).getTime(),
-                        endsAt: new Date(e.lastDate + ' ' + e.lastTimeStart).getTime()
+                        startsAt: start > 0 ? start: undefined,
+                        endsAt: end > 0 ? end : undefined,
+                        season: 0
                     };
                 }).forEach((e) => {
                     (async () => {
