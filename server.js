@@ -20,6 +20,8 @@ import * as path from "path";
 import {rand} from "./src/random.js";
 import slug from "slug";
 import sha256 from "sha256";
+import zmq from "zeromq";
+
 import {
     contactEmail,
     eventsPerPage,
@@ -45,6 +47,10 @@ const transporter = nodemailer.createTransport({
         pass: process.env.MAIL_PASS || '',
     },
 });
+
+const sock = new zmq.Publisher
+
+await sock.bind("tcp://127.0.0.1:7601")
 
 const readJSON = async (path) => {
     const json = JSON.parse(
@@ -408,6 +414,9 @@ if(cluster.isMaster && isProduction){
                 req.session.events = req.session.events ? req.session.events + 1 : 1;
                 req.session.ts = new Date().getTime();
                 req.session.save();
+
+                await sock.send(["eventCreated", JSON.stringify({event})]);
+
                 updateEventSummary(event, req.session.user || req.ip);
                 res.json({success: true, event: event})
             } else {
