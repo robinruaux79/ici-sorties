@@ -48,7 +48,8 @@
     "slug": "^8.2.3",
     "ssr-polyfill": "^1.0.1",
     "url": "^0.11.3",
-    "vite-plugin-ssr": "^0.4.142"
+    "vite-plugin-ssr": "^0.4.142",
+    "zeromq": "^6.0.0-beta.19"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
