@@ -4,6 +4,12 @@ import sha256 from "sha256";
 import slug from "slug";
 import {rand} from "./src/random.js";
 
+import zmq from "zeromq";
+
+const sock = new zmq.Publisher
+
+await sock.bind("tcp://127.0.0.1:7601")
+
 export const cronFestivals = (eventsCollection, timeout) => {
 
     const nbPerPage = 100;
@@ -60,8 +66,11 @@ export const cronFestivals = (eventsCollection, timeout) => {
                     (async () => {
                         if (e.loc === undefined)
                             return;
-                        await eventsCollection.replaceOne({"slug": e.slug}, e,
+                        const res = await eventsCollection.replaceOne({"slug": e.slug}, e,
                             {upsert: true});
+                        if( res.modifiedCount )
+                           await sock.send(["eventCreated", JSON.stringify({event})]);
+
                     })();
                 });
 
@@ -118,9 +127,12 @@ export const cronParis = (eventsCollection, timeout) => {
                    (async () => {
                         if (e.loc === undefined)
                             return;
-                        await eventsCollection.replaceOne({"slug": e.slug}, e,
+                       const res = await eventsCollection.replaceOne({"slug": e.slug}, e,
                             {upsert: true});
-                    })();
+                       if( res.modifiedCount )
+                          await sock.send(["eventCreated", JSON.stringify({event})]);
+
+                   })();
                 });
 
             });
@@ -172,8 +184,10 @@ export const cronOpenAgenda = (eventsCollection, timeout) => {
                     (async () => {
                         if(e.loc === undefined)
                             return;
-                        await eventsCollection.replaceOne({"slug": e.slug}, e,
+                        const res = await eventsCollection.replaceOne({"slug": e.slug}, e,
                         { upsert: true });
+                        if( res.modifiedCount )
+                            await sock.send(["eventCreated", JSON.stringify({event})]);
                     })();
                 });
             });
