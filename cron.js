@@ -6,9 +6,6 @@ import {rand} from "./src/random.js";
 
 import zmq from "zeromq";
 
-const sock = new zmq.Publisher
-await sock.bind("tcp://127.0.0.1:7602")
-
 export const cronFestivals = (eventsCollection, publisher, timeout) => {
 
     const nbPerPage = 100;
