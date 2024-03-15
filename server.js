@@ -50,7 +50,7 @@ const transporter = nodemailer.createTransport({
 
 const sock = new zmq.Publisher
 
-await sock.bind("tcp://127.0.0.1:7601")
+await sock.bind("tcp://127.0.0.1:7602")
 
 const readJSON = async (path) => {
     const json = JSON.parse(
@@ -460,9 +460,9 @@ if(cluster.isMaster && isProduction){
     http.createServer(app).listen(port);
 
     if (cronOptions.enabled ){
-        cronOpenAgenda(eventsCollection, cronOptions.timeout);
-        cronParis(eventsCollection, cronOptions.timeout);
-        cronFestivals(eventsCollection, cronOptions.timeout);
+        cronOpenAgenda(eventsCollection, sock, cronOptions.timeout);
+        cronParis(eventsCollection, sock, cronOptions.timeout);
+        cronFestivals(eventsCollection, sock, cronOptions.timeout);
     }
 }
 

@@ -9,7 +9,7 @@ import zmq from "zeromq";
 const sock = new zmq.Publisher
 await sock.bind("tcp://127.0.0.1:7602")
 
-export const cronFestivals = (eventsCollection, timeout) => {
+export const cronFestivals = (eventsCollection, publisher, timeout) => {
 
     const nbPerPage = 100;
 
@@ -68,7 +68,7 @@ export const cronFestivals = (eventsCollection, timeout) => {
                         const res = await eventsCollection.replaceOne({"slug": e.slug}, e,
                             {upsert: true});
                         if( res.modifiedCount )
-                           await sock.send(["eventCreated", JSON.stringify({event})]);
+                           await publisher.send(["eventCreated", JSON.stringify({event})]);
 
                     })();
                 });
@@ -77,7 +77,7 @@ export const cronFestivals = (eventsCollection, timeout) => {
         });
     };
 }
-export const cronParis = (eventsCollection, timeout) => {
+export const cronParis = (eventsCollection, publisher,timeout) => {
 
     const nbPerPage = 100;
 
@@ -129,7 +129,7 @@ export const cronParis = (eventsCollection, timeout) => {
                        const res = await eventsCollection.replaceOne({"slug": e.slug}, e,
                             {upsert: true});
                        if( res.modifiedCount )
-                          await sock.send(["eventCreated", JSON.stringify({event})]);
+                          await publisher.send(["eventCreated", JSON.stringify({event})]);
 
                    })();
                 });
@@ -138,7 +138,7 @@ export const cronParis = (eventsCollection, timeout) => {
         });
     };
 }
-export const cronOpenAgenda = (eventsCollection, timeout) => {
+export const cronOpenAgenda = (eventsCollection, publisher,timeout) => {
 
     const openAgendas = (agendas) => {
         let i = 0;
@@ -186,7 +186,7 @@ export const cronOpenAgenda = (eventsCollection, timeout) => {
                         const res = await eventsCollection.replaceOne({"slug": e.slug}, e,
                         { upsert: true });
                         if( res.modifiedCount )
-                            await sock.send(["eventCreated", JSON.stringify({event})]);
+                            await publisher.send(["eventCreated", JSON.stringify({event})]);
                     })();
                 });
             });
