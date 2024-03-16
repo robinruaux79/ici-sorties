@@ -327,6 +327,10 @@ if(cluster.isMaster && isProduction){
         });
     });
 
+    app.get('/api/event/:id', async (req, res) => {
+        const r = await eventsCollection.findOne({"slug": {"$eq": req.params.id}}) || await eventsCollection.findOne({"hash": {"$eq": req.params.id}})
+        return res.json(r);
+    })
     app.post('/api/event/:id/report', async (req, res) => {
         if( req.session.user ) {
             eventsCollection.findOneAndUpdate({"hash": {"$eq": req.params.id}}, {

@@ -20,6 +20,7 @@ import EventForm from "./components/EventForm.jsx";
 import Events from "./components/Events.jsx";
 import Button from "./components/Button.jsx";
 import {FaLocationDot, FaNoteSticky} from "react-icons/fa6";
+import EventPanel from "./components/EventPanel.jsx";
 
 function App() {
     const date = new Date();
@@ -57,7 +58,7 @@ function App() {
         <div className="foreground">
             <div className="website-content">
                 <header id={"header"}>
-                    <h1 className={`${bg ? ' bg-default' : ''}`}>ici !<sup>®</sup></h1>
+                    <h1 className={`${bg ? ' bg-default' : ''}`}>ici ! <sup>®</sup></h1>
                     <p className="bg-default slogan">Des sorties et des événements à proximité !</p>
                     <nav role={"navigation"}>
                         <ul className="menu menu-main">
@@ -79,6 +80,7 @@ function App() {
                             <Route path="" element={<Events resetTime={resetTime} />} />
                             <Route path="events/nearby" element={<Events resetTime={resetTime} />} />
                             <Route path="event/new" element={<EventForm />} />
+                            <Route path="event/:id" element={<EventPanel />} />
                             <Route path="legals" element={<Legals />} />
                             <Route path="cgu" element={<CGU />} />
                             <Route path="credits" element={<Credits />} />
