@@ -464,9 +464,9 @@ if(cluster.isMaster && isProduction){
     http.createServer(app).listen(port);
 
     if (cronOptions.enabled ){
-        cronOpenAgenda(eventsCollection, sock, cronOptions.timeout);
-        cronParis(eventsCollection, sock, cronOptions.timeout);
-        cronFestivals(eventsCollection, sock, cronOptions.timeout);
+        cronOpenAgenda(eventsCollection, cronOptions.timeout);
+        cronParis(eventsCollection, cronOptions.timeout);
+        cronFestivals(eventsCollection, cronOptions.timeout);
     }
 }
 

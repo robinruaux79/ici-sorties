@@ -5,6 +5,7 @@ import slug from "slug";
 import {rand} from "./src/random.js";
 
 import zmq from "zeromq";
+import process from "node:process";
 
 export const cronFestivals = (eventsCollection, publisher, timeout) => {
 
@@ -65,7 +66,7 @@ export const cronFestivals = (eventsCollection, publisher, timeout) => {
                         const res = await eventsCollection.replaceOne({"slug": e.slug}, e,
                             {upsert: true});
                         if( res.modifiedCount )
-                           await publisher.send(["eventCreated", JSON.stringify({event: e})]);
+                           process.send({group:"eventCreated", msg: JSON.stringify({event: e})});
 
                     })();
                 });
@@ -126,7 +127,7 @@ export const cronParis = (eventsCollection, publisher,timeout) => {
                        const res = await eventsCollection.replaceOne({"slug": e.slug}, e,
                             {upsert: true});
                        if( res.modifiedCount )
-                          await publisher.send(["eventCreated", JSON.stringify({event: e})]);
+                          process.send({group:"eventCreated", msg:JSON.stringify({event: e})});
 
                    })();
                 });
@@ -183,7 +184,7 @@ export const cronOpenAgenda = (eventsCollection, publisher,timeout) => {
                         const res = await eventsCollection.replaceOne({"slug": e.slug}, e,
                         { upsert: true });
                         if( res.modifiedCount )
-                            await publisher.send(["eventCreated", JSON.stringify({event: e})]);
+                            process.send({group:"eventCreated", msg: JSON.stringify({event: e})});
                     })();
                 });
             });
