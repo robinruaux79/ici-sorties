@@ -52,8 +52,7 @@ function App() {
     const [resetTime, setResetTime] = useState(0);
 
     return <QueryClientProvider client={queryClient}>
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NS94ZLLZ"
-                          height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NS94ZLLZ" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div className={`background${bg?' filled': ''}`}>
             {bg}
         </div>
@@ -108,11 +107,11 @@ function App() {
                         }} to={"/cgu"}><Trans i18nKey={"links.cgu"}>CGU</Trans></NavLink></li>
                     </ul>
                     <h3>Partenaires</h3>
-                    <A HREF="https://www.meilleurduweb.com" target="_blank"><IMG SRC="https://www.meilleurduweb.com/images/pub/banniere_88.31.gif" border="0" ALT="Meilleur du Web : Annuaire des meilleurs sites Web."></A>
+                    <a href="https://www.meilleurduweb.com" target="_blank"><img src="https://www.meilleurduweb.com/images/pub/banniere_88.31.gif" border="0" alt="Meilleur du Web : Annuaire des meilleurs sites Web." />&nbsp;</a>
                 </footer>
             </div>
         </div>
-    </QueryClientProvider>;
+    </QueryClientProvider>
 }
 
 
