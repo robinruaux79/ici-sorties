@@ -65,7 +65,7 @@ export const cronFestivals = (eventsCollection, publisher, timeout) => {
                         const res = await eventsCollection.replaceOne({"slug": e.slug}, e,
                             {upsert: true});
                         if( res.modifiedCount )
-                           await publisher.send(["eventCreated", JSON.stringify({event})]);
+                           await publisher.send(["eventCreated", JSON.stringify({event: e})]);
 
                     })();
                 });
@@ -126,7 +126,7 @@ export const cronParis = (eventsCollection, publisher,timeout) => {
                        const res = await eventsCollection.replaceOne({"slug": e.slug}, e,
                             {upsert: true});
                        if( res.modifiedCount )
-                          await publisher.send(["eventCreated", JSON.stringify({event})]);
+                          await publisher.send(["eventCreated", JSON.stringify({event: e})]);
 
                    })();
                 });
@@ -183,7 +183,7 @@ export const cronOpenAgenda = (eventsCollection, publisher,timeout) => {
                         const res = await eventsCollection.replaceOne({"slug": e.slug}, e,
                         { upsert: true });
                         if( res.modifiedCount )
-                            await publisher.send(["eventCreated", JSON.stringify({event})]);
+                            await publisher.send(["eventCreated", JSON.stringify({event: e})]);
                     })();
                 });
             });

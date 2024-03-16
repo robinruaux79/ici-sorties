@@ -48,10 +48,6 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-const sock = new zmq.Publisher
-
-await sock.bind("tcp://127.0.0.1:7602")
-
 const readJSON = async (path) => {
     const json = JSON.parse(
         await readFile(
@@ -77,6 +73,10 @@ if(cluster.isMaster && isProduction){
         cluster.fork()
     }
 }else {
+
+    const sock = new zmq.Publisher
+
+    await sock.bind("tcp://127.0.0.1:7602")
 
     const keys = await readJSON(googleAuthFilepath);
     const oAuth2Client = new OAuth2Client(
