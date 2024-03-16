@@ -463,8 +463,8 @@ if(cluster.isMaster && isProduction){
 
     http.createServer(app).listen(port);
 
-    process.send({group: 'pollCreated', msg: JSON.stringify({ title: 'Test'})})
-    
+    process.send({group: 'eventCreated', msg: JSON.stringify({ title: 'Test'})})
+
     if (cronOptions.enabled ){
         cronOpenAgenda(eventsCollection, process, cronOptions.timeout);
         cronParis(eventsCollection, process, cronOptions.timeout);
