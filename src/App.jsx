@@ -105,6 +105,8 @@ function App() {
                             });
                         }} to={"/cgu"}><Trans i18nKey={"links.cgu"}>CGU</Trans></NavLink></li>
                     </ul>
+                    <h3>Partenaires</h3>
+                    <A HREF="https://www.meilleurduweb.com" target="_blank"><IMG SRC="https://www.meilleurduweb.com/images/pub/banniere_88.31.gif" border="0" ALT="Meilleur du Web : Annuaire des meilleurs sites Web."></A>
                 </footer>
             </div>
         </div>
