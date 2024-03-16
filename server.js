@@ -76,7 +76,7 @@ if(cluster.isMaster && isProduction){
     // fork worker processes for each available CPU core
     for(let i = 0; i< nCPUs; i++){
         const p = cluster.fork()
-        p.on('message', async function (message) {
+        p.on('message', async function (d) {
             await sock.send([d.group, d.msg]);
         });
     }
