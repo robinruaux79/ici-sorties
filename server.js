@@ -66,17 +66,21 @@ const baseUrl = (isHttps ? "https://":"http://") + domain;
 
 // check if the process is the master process
 if(cluster.isMaster && isProduction){
-    // get the number of available cpu cores
-    const nCPUs = os.cpus().length;
-    // fork worker processes for each available CPU core
-    for(let i = 0; i< nCPUs; i++){
-        cluster.fork()
-    }
-}else {
 
     const sock = new zmq.Publisher
 
     await sock.bind("tcp://127.0.0.1:7602")
+
+    // get the number of available cpu cores
+    const nCPUs = os.cpus().length;
+    // fork worker processes for each available CPU core
+    for(let i = 0; i< nCPUs; i++){
+        const p = cluster.fork()
+        p.on('message', async function (message) {
+            await sock.send([d.group, d.msg]);
+        });
+    }
+}else {
 
     const keys = await readJSON(googleAuthFilepath);
     const oAuth2Client = new OAuth2Client(
@@ -415,7 +419,7 @@ if(cluster.isMaster && isProduction){
                 req.session.ts = new Date().getTime();
                 req.session.save();
 
-                await sock.send(["eventCreated", JSON.stringify({event})]);
+                process.send({group:"eventCreated", msg:JSON.stringify({event})})
 
                 updateEventSummary(event, req.session.user || req.ip);
                 res.json({success: true, event: event})
