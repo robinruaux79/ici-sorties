@@ -77,6 +77,7 @@ if(cluster.isMaster && isProduction){
     for(let i = 0; i< nCPUs; i++){
         const p = cluster.fork()
         p.on('message', async function (d) {
+//            console.log(d);
             await sock.send([d.group, d.msg]);
         });
     }
@@ -459,11 +460,12 @@ if(cluster.isMaster && isProduction){
         res.status(200).set({ 'Content-Type': 'text/html' }).send(html)
     })
 
-    const port = process.env?.PORT || 80;
+    const port = process.env?.PORT || 7631;
 
     http.createServer(app).listen(port);
 
-    process.send({group: 'eventCreated', msg: JSON.stringify({ title: 'Test'})})
+    if( process.send )
+        process.send({group: 'eventCreated', msg: JSON.stringify({ title: 'Test'})})
 
     if (cronOptions.enabled ){
         cronOpenAgenda(eventsCollection, process, cronOptions.timeout);

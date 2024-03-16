@@ -69,8 +69,8 @@ export const cronFestivals = (eventsCollection, process, timeout) => {
                             return;
                         const res = await eventsCollection.replaceOne({"slug": e.slug}, e,
                             {upsert: true});
-                        if( res.modifiedCount )
-                           process.send({group:"eventCreated", msg: JSON.stringify({event: e})});
+                        if( res.modifiedCount && process.send )
+                           process.send({group:"eventCreated", msg: JSON.stringify(e)});
 
                     })();
                 });
@@ -130,8 +130,8 @@ export const cronParis = (eventsCollection, process,timeout) => {
                             return;
                        const res = await eventsCollection.replaceOne({"slug": e.slug}, e,
                             {upsert: true});
-                       if( res.modifiedCount )
-                          process.send({group:"eventCreated", msg:JSON.stringify({event: e})});
+                       if( res.modifiedCount && process.send )
+                          process.send({group:"eventCreated", msg:JSON.stringify(e)});
 
                    })();
                 });
@@ -187,8 +187,8 @@ export const cronOpenAgenda = (eventsCollection, process,timeout) => {
                             return;
                         const res = await eventsCollection.replaceOne({"slug": e.slug}, e,
                         { upsert: true });
-                        if( res.modifiedCount )
-                            process.send({group:"eventCreated", msg: JSON.stringify({event: e})});
+                        if( res.modifiedCount && process.send )
+                            process.send({group:"eventCreated", msg: JSON.stringify(e)});
                     })();
                 });
             });
