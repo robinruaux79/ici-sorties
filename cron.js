@@ -7,7 +7,7 @@ import {rand} from "./src/random.js";
 import zmq from "zeromq";
 import process from "node:process";
 
-export const cronFestivals = (eventsCollection, publisher, timeout) => {
+export const cronFestivals = (eventsCollection, process, timeout) => {
 
     const nbPerPage = 100;
 
@@ -25,7 +25,8 @@ export const cronFestivals = (eventsCollection, publisher, timeout) => {
 
     const getFestivalsPage = (page) => {
         const offset = nbPerPage*page;
-        https.get("https://data.culture.gouv.fr/api/explore/v2.1/catalog/datasets/festivals-global-festivals-_-pl/records?limit=" + nbPerPage + "&offset=" + offset + "&lang=fr", (resp) => {
+        const url = "https://data.culture.gouv.fr/api/explore/v2.1/catalog/datasets/festivals-global-festivals-_-pl/records?limit=" + nbPerPage + "&offset=" + offset + "&lang=fr";
+        https.get(url, (resp) => {
             let data = '';
             resp.on('data', (chunk) => {
                 data += chunk;
@@ -33,7 +34,10 @@ export const cronFestivals = (eventsCollection, publisher, timeout) => {
             resp.on('end', async () => {
                 const d = JSON.parse(data);
                 count = d.total_count;
-                d.results.map(e => {
+                if( !d.results ) {
+                    console.log('Could not find results at ' + url);
+                }
+                d.results?.map(e => {
                     const p = e.periode_principale_de_deroulement_du_festival;
                     if( p === 'Saison (21 juin - 5 septembre)'){
                         e.season = 1;
@@ -75,7 +79,7 @@ export const cronFestivals = (eventsCollection, publisher, timeout) => {
         });
     };
 }
-export const cronParis = (eventsCollection, publisher,timeout) => {
+export const cronParis = (eventsCollection, process,timeout) => {
 
     const nbPerPage = 100;
 
@@ -136,7 +140,7 @@ export const cronParis = (eventsCollection, publisher,timeout) => {
         });
     };
 }
-export const cronOpenAgenda = (eventsCollection, publisher,timeout) => {
+export const cronOpenAgenda = (eventsCollection, process,timeout) => {
 
     const openAgendas = (agendas) => {
         let i = 0;
