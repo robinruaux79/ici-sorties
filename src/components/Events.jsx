@@ -86,11 +86,15 @@ function Events({children, disabled, className, resetTime, loc, ...rest}) {
 
     return (<div className="events-wrapper">
             <div className="events-header">
-                <input type="text" placeholder="Rechercher une sortie" value={searchValue} onChange={e => {
-                    setSearchValue(e.target.value);
-                    infiniteScrollRef.current.reset();
-                }} />
                 <div className="fields-inline">
+                    <div className="field field-max">
+                        <label>
+                            <Trans i18nKey={'searchLabel'} defaults={'Rechercher une sortie'}></Trans> :</label>
+                        <input type="text" placeholder="Concert, festival..." value={searchValue} onChange={e => {
+                            setSearchValue(e.target.value);
+                            infiniteScrollRef.current.reset();
+                        }} />
+                    </div>
                     <div className="field">
                         <label>
                             <Trans i18nKey={'startsAt'} values={{startsAt: ''}}

@@ -52,7 +52,7 @@ function App() {
     const [resetTime, setResetTime] = useState(0);
 
     return <QueryClientProvider client={queryClient}>
-        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NS94ZLLZ" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NS94ZLLZ" height="0" width="0" style={{display:'none',visibility:'hidden'}}></iframe></noscript>
         <div className={`background${bg?' filled': ''}`}>
             {bg}
         </div>
