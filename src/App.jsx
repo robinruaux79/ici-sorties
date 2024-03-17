@@ -89,8 +89,8 @@ function App() {
                     </Routes>
                 </main>
 
-                <footer className={"bg-default"}>
-                    <ul>
+                <footer>
+                    <ul className={"bg-default"}>
                         <li><NavLink onClick={() => {
                             ReactGA.event({
                                 category: 'navigation',
@@ -106,7 +106,6 @@ function App() {
                             });
                         }} to={"/cgu"}><Trans i18nKey={"links.cgu"}>CGU</Trans></NavLink></li>
                     </ul>
-                    <h3>Partenaires</h3>
                     <a href="https://www.meilleurduweb.com" target="_blank"><img src="https://www.meilleurduweb.com/images/pub/banniere_88.31.gif" border="0" alt="Meilleur du Web : Annuaire des meilleurs sites Web." />&nbsp;</a>
                 </footer>
             </div>
