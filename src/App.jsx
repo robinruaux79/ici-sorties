@@ -106,7 +106,8 @@ function App() {
                             });
                         }} to={"/cgu"}><Trans i18nKey={"links.cgu"}>CGU</Trans></NavLink></li>
                     </ul>
-                    <a href="http://www.w3-annuaire.com/vote-w3-annuaire.php?id_site_vote=16816" target="_blank"><img src="http://www.w3-annuaire.com/images/logo-w3-annuaire.gif" width="120" height="35" border="0" alt="W3 Annuaire"></a><noscript><a href="http://www.w3-annuaire.com/annuaire-divers.php">Annuaire Divers</a> <a href="http://www.w3-annuaire.com">Référencement Web</a></noscript>
+                    <a href="http://www.w3-annuaire.com/vote-w3-annuaire.php?id_site_vote=16816" target="_blank"><img src="http://www.w3-annuaire.com/images/logo-w3-annuaire.gif" width="120" height="35" border="0" alt="W3 Annuaire" />&nbsp;</a>
+                    <noscript><a href="http://www.w3-annuaire.com/annuaire-divers.php">Annuaire Divers</a> <a href="http://www.w3-annuaire.com">Référencement Web</a></noscript>
                     <a href="https://www.meilleurduweb.com" target="_blank"><img src="https://www.meilleurduweb.com/images/pub/banniere_88.31.gif" border="0" alt="Meilleur du Web : Annuaire des meilleurs sites Web." />&nbsp;</a>
                 </footer>
             </div>
