@@ -22,14 +22,16 @@
       font-weight: 300;
     }
   margin-bottom: 8px;
-  .fields-inline {
-    gap: 24px;
-  }
 }
 
 
 .fields-inline {
   display: flex;
+  gap: 24px;
+  @media only screen and (max-width: 619px){
+    flex-direction: column;
+    gap: 0px;
+  }
   gap: 8px;
   width: 100%;
   margin: 0 auto;
@@ -37,4 +39,10 @@
   .field-max {
     flex: 1;
   }
+}
+
+.fields {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
 }

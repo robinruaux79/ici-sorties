@@ -95,6 +95,7 @@ function Events({children, disabled, className, resetTime, loc, ...rest}) {
                             infiniteScrollRef.current.reset();
                         }} />
                     </div>
+                    <div className="fields">
                     <div className="field">
                         <label>
                             <Trans i18nKey={'startsAt'} values={{startsAt: ''}}
@@ -132,6 +133,7 @@ function Events({children, disabled, className, resetTime, loc, ...rest}) {
                             showTimeSelect
                             filterTime={filterPassedTime}
                         /></Suspense>}
+                    </div>
                     </div>
                     </div>
             </div>
