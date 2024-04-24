@@ -142,6 +142,11 @@ if(cluster.isMaster && isProduction){
     app.use(csrfProtection)
     app.disable('etag');
 
+    const allEvents = await eventsCollection.find().toArray();
+    const sitemapMap = {};
+    allEvents.map(m => m.slug).forEach(u => {
+        sitemapMap['/event/'+u] = ['get'];
+    });
     const sitemap = ExpressSitemap({
         url: domain,
         http: isHttps ? 'https' : 'http',
@@ -151,6 +156,7 @@ if(cluster.isMaster && isProduction){
             '/events/nearby?sort=start': ['get'],
             '/legals': ['get'],
             '/credits': ['get'],
+            ...sitemapMap
         },
         route: [],
         generate: app
