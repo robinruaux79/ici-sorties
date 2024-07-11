@@ -5,6 +5,7 @@
 body {
   font-family: "Noto Sans", Helvetica, Arial;
   font-size: 14px;
+  color: black;
 }
 
 *:focus {
@@ -117,6 +118,7 @@ h1 {
 
 input[type=text], textarea {
     font-family: "Noto Sans", Helvetica, Arial;
+    background-color: white;
 }
 input[type=checkbox]{
   margin-right: 8px;
