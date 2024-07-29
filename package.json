@@ -24,6 +24,7 @@
     "express-csrf-double-submit-cookie": "^1.2.1",
     "express-session": "^1.18.0",
     "express-sitemap": "^1.8.0",
+    "express-sitemap-xml": "^3.1.0",
     "google-auth-library": "^9.6.3",
     "i18next-browser-languagedetector": "^7.2.0",
     "leaflet": "^1.9.4",

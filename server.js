@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import express from 'express'
-import ExpressSitemap from 'express-sitemap';
+import ExpressSitemap from 'express-sitemap-xml';
 import {MongoClient} from 'mongodb'
 import { RateLimiterMongo } from 'rate-limiter-flexible';
 import {OAuth2Client} from 'google-auth-library';
@@ -143,24 +143,17 @@ if(cluster.isMaster && isProduction){
     app.disable('etag');
 
     const allEvents = await eventsCollection.find().toArray();
-    const sitemapMap = {};
+    const sitemapMap = [];
     allEvents.map(m => m.slug).forEach(u => {
-        sitemapMap['/event/'+u] = ['get'];
+        sitemapMap.push('/event/'+u);
     });
-    const sitemap = ExpressSitemap({
-        url: domain,
-        http: isHttps ? 'https' : 'http',
-        map: {
-            '/': ['get'],
-            '/events/nearby': ['get'],
-            '/events/nearby?sort=start': ['get'],
-            '/legals': ['get'],
-            '/credits': ['get'],
-            ...sitemapMap
-        },
-        route: [],
-        generate: app
-    })
+
+    app.use(ExpressSitemap(async () => {
+        return ["/",'/events/nearby',
+            '/events/nearby?sort=start',
+            '/legals',
+            '/credits', ...sitemapMap ];
+    }, "https://ici.primals.net"))
 
     const templateHtml = isProduction
         ? fs.readFileSync('./dist/client/index.html', {encoding:'utf-8'})
