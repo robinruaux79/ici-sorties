@@ -138,22 +138,17 @@ if(cluster.isMaster && isProduction){
     }));
     app.use(rateLimiterMiddleware);
 
-    eventsCollection.find().toArray().then(async allEvents => {
-        const sitemapMap = [];
-        allEvents.map(m => m.slug).forEach(u => {
-            sitemapMap.push('/event/'+u);
-        });
+    eventsCollection.find({}, { projection: { slug: 1 }}).toArray().then(async allEvents => {
         app.use(ExpressSitemap(async () => {
             return ["/",'/events/nearby',
                 '/events/nearby?sort=start',
                 '/legals',
-                '/credits', ...sitemapMap ];
+                '/credits', ...allEvents.map(m => '/event/'+m.slug) ];
         }, "https://ici.primals.net"))
 
         const csrfProtection = csrfDSC();
         app.use(csrfProtection)
         app.disable('etag');
-
 
         const templateHtml = isProduction
             ? fs.readFileSync('./dist/client/index.html', {encoding:'utf-8'})
